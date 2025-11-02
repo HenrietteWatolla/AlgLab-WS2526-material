@@ -46,6 +46,20 @@ class MultiKnapsackSolver:
         for item in item_set:
             self.model.Add(sum(self.vars[item, truck] for truck in truck_set) <= 1)
 
+        # toxic behavior
+        if self.activate_toxic == True:
+            self.vars_toxic = {}
+            for truck in truck_set:
+                self.vars_toxic[truck] = self.model.new_bool_var("toxic Truck")
+            for truck in truck_set:
+                for item in item_set:
+                    # toxic case --> pack item leads to toxic truck --> 1 <= 1
+                    if self.items[item].toxic == True:
+                        self.model.Add(self.vars[item, truck] <= self.vars_toxic[truck])
+                    # non toxic case --> pack item leads to non toxic truck --> 1 <= 1-0 = 1
+                    else:
+                        self.model.Add(self.vars[item, truck] <= 1 - self.vars_toxic[truck])
+
         # Objective function
         self.model.maximize(sum(self.items[item].value*self.vars[item, truck] for item in item_set for truck in truck_set))
 
