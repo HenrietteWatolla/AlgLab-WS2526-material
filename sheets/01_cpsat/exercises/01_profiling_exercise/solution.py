@@ -40,29 +40,18 @@ def build_weighted_graph(instance: ProblemInstance) -> nx.Graph:
     for vertex in instance.endpoints:
         G.add_node(vertex)
 
-    # Add edges with weights to the graph
-    for v in instance.endpoints:
-        for w in instance.endpoints:
-            if v != w:  # Ensure not to check the same node
-                # Check if there is an edge between v and w
-                if any(
-                    edge.endpoint_a == v and edge.endpoint_b == w
-                    for edge in instance.connections
-                ) or any(
-                    edge.endpoint_a == w and edge.endpoint_b == v
-                    for edge in instance.connections
-                ):
-                    # Get the weight of the edge and add it to the graph
-                    weight = get_edge_weight(instance, v, w)
-                    G.add_edge(v, w, weight=weight)
+    # Add edges with weights to the graph --> just read them out from connections
+    for edge in instance.connections:
+        G.add_edge(edge.endpoint_a, edge.endpoint_b, weight=edge.distance)
 
     return G
 
-
-def distance(instance: ProblemInstance, u: str, v: str) -> int:
+# create graph each time is expensive --> compute distances only once on the once builded graph
+# --> see below in _add_distance_constraints
+# def distance(graph: nx.Graph, u: str, v: str) -> int:
     """Calculate the shortest path distance between two endpoints in the network."""
-    graph = build_weighted_graph(instance)
-    return nx.shortest_path_length(graph, u, v, weight="weight")
+    # graph = build_weighted_graph(instance)
+    # return nx.shortest_path_length(graph, u, v, weight="weight")
 
 
 class MaxPlacementsSolver:
@@ -73,6 +62,9 @@ class MaxPlacementsSolver:
     def __init__(self, instance: ProblemInstance):
         self.instance = instance
         self.model = cp_model.CpModel()
+
+        # build graph only once
+        self.graph = build_weighted_graph(instance)
 
         # Create a boolean variable for each approved endpoint
         # It will be True if the (approved) endpoint is selected, False otherwise
@@ -90,12 +82,18 @@ class MaxPlacementsSolver:
     def _add_distance_constraints(self):
         """Add constraints to ensure selected endpoints are not too close."""
         logging.info("Adding distance constraints")
+        # only compute shortest distances once and store them --> fast access via dictionary
+        min_distances = {}
+        for start in self.instance.approved_endpoints:
+            min_distances[start] = nx.single_source_dijkstra_path_length(
+                self.graph, start, weight="weight"
+            )
         for endpoint1, endpoint2 in itertools.combinations(
             self.instance.approved_endpoints, 2
         ):
+            distances = min_distances[endpoint1].get(endpoint2, float("inf"))
             if (
-                distance(self.instance, endpoint1, endpoint2)
-                < self.instance.min_distance_between_placements
+                distances < self.instance.min_distance_between_placements
             ):
                 self.model.Add(self.vars[endpoint1] + self.vars[endpoint2] <= 1)
 
@@ -110,6 +108,10 @@ class MaxPlacementsSolver:
         # Create a solver instance
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit
+        
+        solver.parameters.num_search_workers = 8
+        solver.parameters.cp_model_presolve = True
+
         # Enable logging to stdout so we can see the progress
         solver.parameters.log_search_progress = True
         solver.parameters.log_to_stdout = True
