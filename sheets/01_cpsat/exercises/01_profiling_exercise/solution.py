@@ -108,9 +108,6 @@ class MaxPlacementsSolver:
         # Create a solver instance
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit
-        
-        solver.parameters.num_search_workers = 8
-        solver.parameters.cp_model_presolve = True
 
         # Enable logging to stdout so we can see the progress
         solver.parameters.log_search_progress = True
