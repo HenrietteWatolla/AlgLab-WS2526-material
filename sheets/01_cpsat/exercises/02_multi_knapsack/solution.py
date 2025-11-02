@@ -32,6 +32,22 @@ class MultiKnapsackSolver:
         self.solver = CpSolver()
         self.solver.parameters.log_search_progress = True
         # TODO: Implement me!
+        # Variables --> one per item, connected to the truck
+        truck_set = range(len(self.capacities))
+        item_set = range(len(self.items))
+        self.vars = {}
+        for item in item_set:
+            for truck in truck_set:
+                self.vars[item, truck] = self.model.new_bool_var(f"x_{item},{truck}")
+
+        # Constraints
+        for truck in truck_set:
+            self.model.Add(sum(self.items[item].weight*self.vars[item, truck] for item in item_set) <= self.capacities[truck])
+        for item in item_set:
+            self.model.Add(sum(self.vars[item, truck] for truck in truck_set) <= 1)
+
+        # Objective function
+        self.model.maximize(sum(self.items[item].value*self.vars[item, truck] for item in item_set for truck in truck_set))
 
 
 
@@ -51,4 +67,16 @@ class MultiKnapsackSolver:
         if timelimit < math.inf:
             self.solver.parameters.max_time_in_seconds = timelimit
         # TODO: Implement me!
-        return Solution(trucks=[])  # empty solution
+        status = self.solver.solve(self.model)
+        if status in (OPTIMAL, FEASIBLE):
+            # create one empty list per truck
+            packed = [[] for pack in range(len(self.capacities))]
+            for item in range(len(self.items)):
+                for truck in range(len(self.capacities)):
+                    if self.solver.value(self.vars[item, truck]) == 1:
+                        packed[truck].append(self.items[item])
+                        break  # item is at least in one truck
+            return Solution(trucks = packed)
+        else:
+            # no solution found --> return empty solution
+            return Solution(trucks=[])
