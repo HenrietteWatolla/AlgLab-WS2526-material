@@ -112,6 +112,7 @@ def visualize_donations(
         f"{len(database.get_all_recipients())} patients, {len(donations)} crossover donations"
     )
     fig.tight_layout()
+    plt.savefig("plot.png")
     plt.show()
 
 

@@ -41,8 +41,10 @@ class MultiKnapsackSolver:
                 self.vars[item, truck] = self.model.new_bool_var(f"x_{item},{truck}")
 
         # Constraints
+        # not exceed the truck capacity
         for truck in truck_set:
             self.model.Add(sum(self.items[item].weight*self.vars[item, truck] for item in item_set) <= self.capacities[truck])
+        # pack item at most once
         for item in item_set:
             self.model.Add(sum(self.vars[item, truck] for truck in truck_set) <= 1)
 
