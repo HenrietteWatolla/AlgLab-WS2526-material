@@ -4,111 +4,142 @@ import networkx as nx
 from data_schema import Donation, Solution
 from database import TransplantDatabase
 from ortools.sat.python.cp_model import FEASIBLE, OPTIMAL, CpModel, CpSolver
+import time
 
 class CrossoverTransplantSolver:
-
     def __init__(self, database: TransplantDatabase) -> None:
         """
         Constructs a new solver instance, using the instance data from the given database instance.
         :param Database database: The organ donor/recipients database.
         """
         self.database = database
-        # Init Stuff to work with
-        recipients = self.database.get_all_recipients()
-        donors = self.database.get_all_donors()
- 
-        # create dictionaries for fast access
-        compatible_donors_per_recipient = {}
-        partner_of_recipients = {}
-        print("a!!!!!!!!!!!!!!!!!!")
-        for recipient in recipients:
-            compatible_donors_per_recipient[recipient] = self.database.get_compatible_donors(recipient)
-            partner_of_recipients[recipient] = self.database.get_partner_donors(recipient)
-        compatible_recipients_per_donor = {}
-        partner_of_donors = {}
-        print("b!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        for donor in donors:
-            compatible_recipients_per_donor[donor] = self.database.get_compatible_recipients(donor)
-            partner_of_donors[donor] = self.database.get_partner_recipient(donor)
-        print("c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(partner_of_donors)
-        # print(partner_of_recipients)
-
-        # build directed graph
-        def build_directed_graph(database: TransplantDatabase) -> nx.DiGraph:
-            # Build a directed NetworkX graph from the TransplantDatabase so we can identifiy cycles.
-            G = nx.DiGraph()
-
-            # Add all recipients as nodes in the graph
-            for recipient in recipients:
-                G.add_node(recipient)
-            print("ea!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # Add directed edges to the graph --> one per compatible donation
-            for recipient1 in recipients:
-                for partner in partner_of_recipients[recipient1]:
-                    for recipient2 in compatible_recipients_per_donor[partner]:
-                        G.add_edge(recipient1, recipient2, partner = partner)
-            print("eb!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-            return G
-        
-        print("d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # TODO: Implement me!
-        #self.items = datab.items
-        #self.capacities = instance.capacities
-        self.model = CpModel()
-        #self.solver = CpSolver()
+
+        # Init Stuff to work with
+        self.recipients = self.database.get_all_recipients()
+        self.donors = self.database.get_all_donors()
+
+        self.partners_d = {} #key: recipient, value: partners
+        for recipient in self.recipients:
+            self.partners_d[recipient] = self.database.get_partner_donors(recipient)
+
+        """
+        for recipient in self.recipients:
+            
+            print("possible donors for recipient ", recipient)
+            print(self.database.get_compatible_donors(recipient))
+            print("\n")
+            print("partners of recipient ", recipient)
+            print(self.partners_d[recipient])
+            print("\n")
+            print("\n")
+            print("\n")
+        """
+
+        #create graph
+        self.graph = CrossoverTransplantSolver.create_graph(self)
+        #self.cycles = [tuple(c) for c in nx.simple_cycles(self.graph, length_bound = 3)]
+
+        #print("cycles")
+        #print(self.cycles)
 
         self.solver = CpSolver()
         self.solver.parameters.log_search_progress = True
+        self.model = CpModel()
+        
+        self.edge_to_donor = {}  # key = (u_index, v_index), value = donor
+        self.compatibility = CrossoverTransplantSolver.create_adjacency_matrix_from_graph(self)
+        self.length_matrix = len(self.compatibility)
+        
 
-        print("e!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-        self.directed_graph = build_directed_graph(database)
-        print("w")
-        self.circles = [tuple(c) for c in nx.simple_cycles(self.directed_graph, length_bound = 5)]
-        # self.circles_list = list(nx.simple_cycles(self.directed_graph, length_bound = 2))
-        print("x")
-        # Variables --> one per recipient, connected to the cycle of donation
-        # self.circles = [c for c in nx.simple_cycles(self.directed_graph) if len(c) <= 5]
-        print(len(recipients))
-        print(self.circles)
+        # Decision variables: x[i][j] = 1 if donor i donates to recipient j
         self.vars = {}
-        print("f!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        for circle in self.circles:
-            for recipient in recipients:
-                self.vars[recipient, circle] = self.model.new_bool_var(f"{recipient},{circle}")
-        print("g!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # Constraints
-        # choosing of cycles
-        # donor is willing to donate only if their associated recipient receives an organ in exchange
-        # --> outgoing edge from the node leads to ingoing edge for the same node
-        # --> use one node of the cycle, use all
-        # only one of multiple willing donors will donate in the final solution --> per node at most one outgoing edge
-        self.vars_cycles = {}
-        for circle in range(len(self.circles)):
-            self.vars_cycles[circle] = self.model.new_bool_var("choosen cycles")
-        print("h!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        #for circle in circles:
-        #    for recipient in recipients:
-                # choose one node of the cycle leads to choosing complete cycle --> 1 <= 1
-        #        self.model.Add(self.vars[recipient, circle] <= self.vars_cycles[circle]) ###Fehler Hier!
-        for node in range(len(recipients)):
-            self.model.Add(sum(self.vars_cycles[circle] for circle in self.circles if node in circle) <= 1)
+        for i in range(self.length_matrix):
+            for j in range(self.length_matrix):
+                if self.compatibility[i][j] == 1:
+                    self.vars[i, j] = self.model.NewBoolVar(f"x[{i},{j}]")
+        
+        #Each donor donates at most once --> at most one outgoing edge per node 
+        for i in range(self.length_matrix):
+            self.model.Add(
+                sum(self.vars[i, j] for j in range(self.length_matrix) 
+                    if (i, j) in self.vars) <= 1
+            )
+        
+        #Each recipient receives at most once --> at most one incoming edge per node
+        for j in range(self.length_matrix):
+            self.model.Add(
+                sum(self.vars[i, j] for i in range(self.length_matrix) 
+                    if (i, j) in self.vars) <= 1
+            )
 
-        print("i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # donor can only donate once
-        for donor in donors:
-            recipient = self.database.get_partner_recipient(donor)
-            self.model.Add(sum(self.vars[recipient, circle] for circle in self.circles) <= 1)
-        print("j!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # recipient can receive only one organ
-        for recipient in recipients:
-            self.model.Add(sum(self.vars[recipient, circle] for circle in self.circles) <= 1)
-        print("k!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # Objective function
-        self.model.maximize(sum(self.vars[recipient, circle] for recipient in recipients for circle in self.circles))
-        print("l!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #Donor only dontes if partner gets organ in exchange
+        for i in range(self.length_matrix):
+            outgoing = sum(self.vars[i, j] for j in range(self.length_matrix) if (i, j) in self.vars)
+            incoming = sum(self.vars[k, i] for k in range(self.length_matrix) if (k, i) in self.vars)
+            self.model.Add(outgoing == incoming)
+
+        self.model.Maximize(sum(self.vars[i, j] for (i, j) in self.vars))
+
+
+    def create_adjacency_matrix_from_graph(self):    
+        n = len(self.graph.nodes)
+        nodes = list(self.graph.nodes)
+        index = {node: i for i, node in enumerate(nodes)}
+
+        # adjacency matrix (0/1)
+        compatibility = [[0]*n for y in range(n)]
+        
+
+        for u, v, data in self.graph.edges(data=True):
+            ui = index[u]
+            vi = index[v]
+            compatibility[ui][vi] = 1
+            self.edge_to_donor[(ui, vi)] = data['partner_d']
+        return compatibility
+
+
+
+
+
+    def create_graph(self):
+        G = nx.DiGraph()
+        startTime = time.time()
+        for recipient in self.recipients:
+            G.add_node(recipient)
+        
+        acceptable_donors = {}
+        possible_donors = {}
+        for recipient in self.recipients:
+
+            #get all compatible donors for node v 
+            acceptable_donors[recipient] = self.database.get_compatible_donors(recipient) 
+            #get all partner donors for node u
+            possible_donors[recipient] = self.partners_d[recipient]
+
+        #add edges (u=recipient_start,v=recipient_end) to graph
+        for recipient_start in self.recipients:
+            for recipient_end in self.recipients:
+
+                #get all compatible donors for node v 
+                acceptable_donors_v = set(acceptable_donors[recipient_end])     
+                #acceptable_donors_v = acceptable_donors[recipient_end]
+                #get all partner donors for node u
+                possible_donors_u = set(possible_donors[recipient_start])
+                #possible_donors_u = possible_donors[recipient_start]
+
+                #for every acceptable donor check if possible donor is existent for node u, if yes add edge with attr of partner donor
+                for x in acceptable_donors_v:
+                    if x in possible_donors_u:
+                        G.add_edge(recipient_start, recipient_end, partner_d = x)
+        EndTime = time.time()
+        print("TIME: ", EndTime-startTime)
+        return G
+    
+    def get_graph(self):
+        return self.graph
+
+    
 
     def optimize(self, timelimit: float = math.inf) -> Solution:
         """
@@ -121,25 +152,17 @@ class CrossoverTransplantSolver:
         if timelimit < math.inf:
             self.solver.parameters.max_time_in_seconds = timelimit
         # TODO: Implement me!
-        status = self.solver.solve(self.model)
-        print("m!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        if status in (OPTIMAL, FEASIBLE):
-            # create one empty list
-            donations = []
-            circles = self.circles
-            for circle_idx, circle in enumerate(circles):
-                if self.solver.value(self.vars_cycles[circle_idx]) == 1:
-                    
-                # print(self.directed_graph.edges.data())
-                # if self.solver.value(self.vars[recipient, circle]) == 1:
-                    for recipient in range(len(circle)):
-                        recipient1 = circle[recipient]
-                        recipient2 = circle[(recipient + 1) % len(circle)] # mod cycle length --> read whole cycle one time
-                        donor = self.directed_graph[recipient1, recipient2]['partner']
-                        donations.append(Donation(donor = donor, recipient = recipient2))
-                        print(donations)
+        result = self.solver.Solve(self.model)
 
-            return Solution(donations = donations)
-        else:
-            # no solution found --> return empty solution
-            return Solution(donations = [])
+        if result in (OPTIMAL, FEASIBLE):
+            donations = [
+                Donation(
+                    donor=self.edge_to_donor[(i, j)],
+                    recipient=self.recipients[j]  
+                )
+                for (i, j) in self.vars
+                if self.solver.Value(self.vars[i, j]) == 1
+            ]
+            return Solution(donations=donations)
+
+        return Solution(donations=[])

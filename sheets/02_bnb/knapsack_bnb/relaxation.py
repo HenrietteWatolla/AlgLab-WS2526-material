@@ -97,12 +97,68 @@ class MyRelaxationSolver(RelaxationSolver):
     Your relaxation solver stub.
 
     Implement any relaxation (e.g., fractional knapsack, propagation) to tighten bounds.
+
+    --> use fractional knapsack:
+    upper bound = fractional Knapsack
+    lower bound = Greedy 0
     """
+
+    def get_item_order(instance: Instance) -> list:
+        number_of_items = len(instance)
+        rankings = []
+        # calculate value/weight for each item
+        for item in range(number_of_items):
+            rankings.append((instance[item].value / instance[item].weight, instance[item].value, instance[item].weight))
+        
+        # sort items non-increasing
+        rankings.sort(reverse=True)
+        return rankings
+
+    def fractional_knapsack(instance: Instance) -> int:
+        rankings = MyRelaxationSolver.get_item_order(instance)
+
+        total_value = 0
+        current_weight = 0
+        
+        # loop through all items in ranked order
+        for value, weight in rankings:
+            # add complete item, if it fits, else add only fitting fraction
+            if current_weight + weight <= instance.capacity:
+                total_value += value
+                current_weight += weight
+            else:
+                fraction = (instance.capacity - current_weight) / weight
+                total_value += value * fraction
+                break
+        
+        # final total_value can be used as upper bound
+        return total_value
+    
+    def greedy_0(instance: Instance) -> int:
+        rankings = MyRelaxationSolver.get_item_order(instance)
+
+        total_value = 0
+        current_weight = 0
+        
+        # loop through all items in ranked order
+        for value, weight in rankings:
+            # add complete item, if it fits, else skip item
+            if current_weight + weight <= instance.capacity:
+                total_value += value
+                current_weight += weight
+            else:
+                continue
+        
+        # final total_value can be used as lower bound
+        return total_value
+
 
     def solve(
         self, instance: Instance, decisions: BranchingDecisions
     ) -> RelaxedSolution:
-        # placeholder: behave like NaiveRelaxationSolver
+        lower_bound = MyRelaxationSolver.greedy_0(instance)
+        upper_bound = MyRelaxationSolver.fractional_knapsack(instance)
+
         used = sum(item.weight for item, x in zip(instance.items, decisions) if x == 1)
         if used > instance.capacity:
             return RelaxedSolution.create_infeasible(instance)
