@@ -84,7 +84,7 @@ def check_solution_validity(solution: Solution, database: TransplantDatabase):
         )
 
 
-@mandatory_testcase(max_runtime_s=3000)
+@mandatory_testcase(max_runtime_s=30)
 def db_20():
     solve_instance_and_check_solution("20.db", 19)
 
