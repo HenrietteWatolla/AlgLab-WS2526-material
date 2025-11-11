@@ -73,6 +73,7 @@ class MyHeuristic(Heuristics):
             return (heuristic_sol,)
         return ()
     """
+
     best_solution = 0
     best_assignments = []
 

@@ -67,5 +67,5 @@ class MyBranchingStrategy(BranchingStrategy):
         if last_unfixed < 0:
             return ()
         return node.branching_decisions.split_on(last_unfixed)
-
-
+    
+    # branch on the most valuable item / the best ratio / the highest weight

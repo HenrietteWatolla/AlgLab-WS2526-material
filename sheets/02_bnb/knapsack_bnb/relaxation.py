@@ -146,7 +146,7 @@ class MyRelaxationSolver(RelaxationSolver):
                 assignments[index] = 1.0
             else:
                 fraction = (instance.capacity - current_weight) / weight
-                total_value += (value * fraction)
+                total_value += value * fraction
                 assignments[index] = fraction
                 break
 
@@ -163,9 +163,6 @@ class MyRelaxationSolver(RelaxationSolver):
         if used_weight > instance.capacity:
             return RelaxedSolution.create_infeasible(instance)
         
-        selection = [0.0 if x == 0 else 1.0 for x in decisions._assignments]
         upper_bound, relaxed_selection = self.fractional_knapsack(instance, decisions)
-
-        print(selection, "\n")
         
         return RelaxedSolution(instance, relaxed_selection, upper_bound)
