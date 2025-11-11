@@ -155,8 +155,6 @@ class MyRelaxationSolver(RelaxationSolver):
         # final total_value can be used as upper bound
         return total_value, assignments
 
-    best_solution = 0
-    
     def solve(
         self, instance: Instance, decisions: BranchingDecisions
     ) -> RelaxedSolution:
@@ -170,7 +168,4 @@ class MyRelaxationSolver(RelaxationSolver):
 
         print(selection, "\n")
         
-        current_value = sum(item.value * sel for item, sel in zip(instance.items, selection)) # currently relaxed solution
-        if current_value > MyRelaxationSolver.best_solution:
-            MyRelaxationSolver.best_solution = current_value
         return RelaxedSolution(instance, relaxed_selection, upper_bound)

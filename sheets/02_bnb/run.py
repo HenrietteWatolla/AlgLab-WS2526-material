@@ -38,9 +38,9 @@ def run_first_instance():
     bnb = BnBSearch(
         instance,
         relaxation=MyRelaxationSolver(),
+        heuristics=MyHeuristic(),
         search_strategy=SearchStrategy(priority=my_search_order),
         branching_strategy=MyBranchingStrategy(),
-        heuristics=MyHeuristic(),
     )
 
     bnb.search()

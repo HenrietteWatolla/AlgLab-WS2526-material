@@ -16,6 +16,7 @@ from typing import Tuple
 
 from .instance import Instance
 from .relaxed_solution import RelaxedSolution
+from .relaxation import MyRelaxationSolver
 
 
 class HeuristicSolution(RelaxedSolution):
@@ -58,9 +59,11 @@ class MyHeuristic(Heuristics):
 
     The simplest heuristic returns the node's relaxed solution
     if it is already feasible (integral and within capacity).
+
+    --> here i want to use Greedy_0 for lower bound
     """
 
-    def search(
+    """def search(
         self, instance: Instance, relaxed: RelaxedSolution
     ) -> Tuple[HeuristicSolution, ...]:
         if relaxed.does_obey_capacity_constraint() and relaxed.is_integral():
@@ -69,11 +72,39 @@ class MyHeuristic(Heuristics):
             )
             return (heuristic_sol,)
         return ()
-    
-    """def greedy_0(self, instance: Instance, decisions: list) -> tuple:
+    """
+    best_solution = 0
+    best_assignments = []
 
-        rankings = self.get_item_order(instance)
-        assignments = decisions._assignments.copy()
+    def search(
+        self, instance: Instance, relaxed: RelaxedSolution
+    ) -> Tuple[HeuristicSolution, ...]:
+        
+        lower_bound, greedy_selection = self.greedy_0(instance, relaxed.selection)
+
+        if relaxed.does_obey_capacity_constraint() and relaxed.is_integral():
+            if relaxed.upper_bound > MyHeuristic.best_solution:
+                MyHeuristic.best_solution = relaxed.upper_bound
+                MyHeuristic.best_assignments = relaxed.selection
+
+        if lower_bound > MyHeuristic.best_solution:
+                MyHeuristic.best_solution = lower_bound
+                MyHeuristic.best_assignments = greedy_selection
+
+        if MyHeuristic.best_solution >= relaxed.upper_bound:
+            return()
+        
+        heuristic_sol = HeuristicSolution(
+            instance, MyHeuristic.best_assignments, MyHeuristic.best_solution
+        )
+        return (heuristic_sol,)
+
+    # use Greedy_0 to find a lower bound
+    def greedy_0(self, instance: Instance, decisions: list) -> tuple:
+
+        print(decisions)
+        rankings = MyRelaxationSolver.get_item_order(self, instance)
+        assignments = decisions.copy()
 
         total_value = 0
         current_weight = 0
@@ -102,6 +133,3 @@ class MyHeuristic(Heuristics):
                 assignments[index] = 0
         # final total_value can be used as lower bound
         return total_value, assignments
-"""
-
-

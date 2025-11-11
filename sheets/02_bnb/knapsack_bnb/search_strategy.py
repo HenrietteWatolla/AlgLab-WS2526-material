@@ -104,7 +104,7 @@ def my_search_order(node: BnBNode) -> Any:
     # random, very funny to see different --> sometimes really good, but non-deterministic
     # return (100000*randint(0,1))
 
-    # mixture
+    # mixture of BFS and DFS
     global counter
     global basis
     counter = counter + 1
