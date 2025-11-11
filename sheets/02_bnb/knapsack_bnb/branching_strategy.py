@@ -57,15 +57,15 @@ class MyBranchingStrategy(BranchingStrategy):
     from the node's relaxed solution (e.g., fractional values, scores, etc.).
     The simplest strategy is to pick an unfixed variable and split on 0/1.
     """
-
+    # branch on the last variable that has not yet been fixed
     def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
-        # placeholder: branch on the first unfixed variable
-        first_unfixed = min(
-            (i for i, val in enumerate(node.branching_decisions) if val is None),
+
+        last_unfixed = max(
+           (i for i, val in enumerate(node.branching_decisions) if val is None),
             default=-1,
         )
-        if first_unfixed < 0:
+        if last_unfixed < 0:
             return ()
-        return node.branching_decisions.split_on(first_unfixed)
+        return node.branching_decisions.split_on(last_unfixed)
 
 
