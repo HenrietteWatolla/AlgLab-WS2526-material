@@ -69,5 +69,39 @@ class MyHeuristic(Heuristics):
             )
             return (heuristic_sol,)
         return ()
+    
+    """def greedy_0(self, instance: Instance, decisions: list) -> tuple:
+
+        rankings = self.get_item_order(instance)
+        assignments = decisions._assignments.copy()
+
+        total_value = 0
+        current_weight = 0
+        
+        # chosen items have to be in solution --> pack them completely
+        for ratio, value, weight, index in rankings:
+            if assignments[index] == 1:
+                total_value += value
+                current_weight += weight
+            # skip not chosen items
+            else:
+                continue
+
+        # do greedy_0 for all remainig items
+        for ratio, value, weight, index in rankings:
+            # skip already fixed items
+            if (assignments[index] == 1 or assignments[index] == 0):
+                continue
+            # add complete item, if it fits, else skip item
+            if current_weight + weight <= instance.capacity:
+                total_value += value
+                current_weight += weight
+                assignments[index] = 1.0
+                print("TOTAL VALUE after packing object", total_value, current_weight, "\n")
+            else:
+                assignments[index] = 0
+        # final total_value can be used as lower bound
+        return total_value, assignments
+"""
 
 

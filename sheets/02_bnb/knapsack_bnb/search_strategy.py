@@ -11,6 +11,7 @@ by supplying different priority functions.
 
 import queue
 from typing import Callable, Iterator, Tuple, Any
+from random import randint
 
 from .bnb_nodes import BnBNode
 
@@ -87,11 +88,24 @@ class SearchStrategy:
 # Default search order: you must supply your own `priority`.
 # This stub returns a constant key.
 
+counter = 1
+basis = 2
 
 def my_search_order(node: BnBNode) -> Any:
     """
     Example default: constant priority.
     """
-    return 0
+    # BFS
+    # return 0
 
+    # DFS
+    # return -node.depth
 
+    # random, very funny to see different --> sometimes really good, but non-deterministic
+    # return (100000*randint(0,1))
+
+    # mixture
+    global counter
+    global basis
+    counter = counter + 1
+    return (counter % basis)
