@@ -59,8 +59,6 @@ class MyHeuristic(Heuristics):
 
     The simplest heuristic returns the node's relaxed solution
     if it is already feasible (integral and within capacity).
-
-    --> here i want to use Greedy_0 for lower bound
     """
 
     """def search(
@@ -74,6 +72,7 @@ class MyHeuristic(Heuristics):
         return ()
     """
 
+    # --> here i want to use Greedy_0 for lower bound
     best_solution = 0
     best_assignments = []
 
@@ -83,11 +82,15 @@ class MyHeuristic(Heuristics):
         
         lower_bound, greedy_selection = self.greedy_0(instance, relaxed.selection)
 
+        #if (MyRelaxationSolver.best_solution >= upper_bound):
+        #    return RelaxedSolution(instance, MyRelaxationSolver.best_assignments, MyRelaxationSolver.best_solution)
+
         if relaxed.does_obey_capacity_constraint() and relaxed.is_integral():
             if relaxed.upper_bound > MyHeuristic.best_solution:
                 MyHeuristic.best_solution = relaxed.upper_bound
                 MyHeuristic.best_assignments = relaxed.selection
 
+        # update best solution if necessary
         if lower_bound > MyHeuristic.best_solution:
                 MyHeuristic.best_solution = lower_bound
                 MyHeuristic.best_assignments = greedy_selection

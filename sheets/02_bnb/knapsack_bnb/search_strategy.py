@@ -88,8 +88,8 @@ class SearchStrategy:
 # Default search order: you must supply your own `priority`.
 # This stub returns a constant key.
 
-counter = 1
-basis = 2
+# counter = 1
+# basis = 2
 
 def my_search_order(node: BnBNode) -> Any:
     """
@@ -105,7 +105,11 @@ def my_search_order(node: BnBNode) -> Any:
     # return (100000*randint(0,1))
 
     # mixture of BFS and DFS
-    global counter
-    global basis
-    counter = counter + 1
-    return (counter % basis)
+    # global counter
+    # global basis
+    # counter = counter + 1
+    #return (counter % basis)
+
+    # first use highest upper_bound
+    upper_bound = node.relaxed_solution.upper_bound
+    return -upper_bound

@@ -38,8 +38,8 @@ def run_first_instance():
     bnb = BnBSearch(
         instance,
         relaxation=MyRelaxationSolver(),
-        search_strategy=SearchStrategy(priority=my_search_order),
         heuristics=MyHeuristic(),
+        search_strategy=SearchStrategy(priority=my_search_order),
         branching_strategy=MyBranchingStrategy(),
     )
 
