@@ -1,0 +1,13 @@
+Combination of Strategies
+
+- Branching Strategy:	last unfixed
+- Search Strategy:	nodes first that have the highest upper bound
+- Relaxation:		Fractional Knapsack
+- Heuristic:		Greedy 0
+
+Results
+instance 	#iterations		#nodes
+------------------------------------------------
+1	|	1		|	1
+2	|	10		|	21
+3	|	18		|	37

@@ -16,7 +16,6 @@ from typing import Tuple
 
 from .instance import Instance
 from .relaxed_solution import RelaxedSolution
-from .relaxation import MyRelaxationSolver
 
 
 class HeuristicSolution(RelaxedSolution):
@@ -72,7 +71,20 @@ class MyHeuristic(Heuristics):
         return ()
     """
 
-    # --> here i want to use Greedy_0 for lower bound
+    # returns list with tupels [(ratio, value, weight, index)] sorted by ratio
+    def get_item_order(self, instance: Instance) -> list:
+
+        self.instance = instance
+        ratios = []
+        # calculate ratio value/weight for each item
+        for index, item in enumerate(instance.items):
+            ratios.append((item.value / item.weight, item.value, item.weight, index))
+        
+        # sort items by ratio (first entry in tuple) non-increasingly
+        ratios.sort(key = lambda x: x[0], reverse=True)
+        return ratios
+
+    # --> here i want to use Greedy_0 for lower bound and track best solution yet found
     best_solution = 0
     best_assignments = []
 
@@ -81,9 +93,6 @@ class MyHeuristic(Heuristics):
     ) -> Tuple[HeuristicSolution, ...]:
         
         lower_bound, greedy_selection = self.greedy_0(instance, relaxed.selection)
-
-        #if (MyRelaxationSolver.best_solution >= upper_bound):
-        #    return RelaxedSolution(instance, MyRelaxationSolver.best_assignments, MyRelaxationSolver.best_solution)
 
         if relaxed.does_obey_capacity_constraint() and relaxed.is_integral():
             if relaxed.upper_bound > MyHeuristic.best_solution:
@@ -95,8 +104,10 @@ class MyHeuristic(Heuristics):
                 MyHeuristic.best_solution = lower_bound
                 MyHeuristic.best_assignments = greedy_selection
 
-        if MyHeuristic.best_solution >= relaxed.upper_bound:
-            return()
+        # convertion of upper_bound to int only possible if upper bound is finite
+        if math.isfinite(relaxed.upper_bound) and relaxed.does_obey_capacity_constraint():
+            if MyHeuristic.best_solution >= int(relaxed.upper_bound):
+                return()
         
         heuristic_sol = HeuristicSolution(
             instance, MyHeuristic.best_assignments, MyHeuristic.best_solution
@@ -105,15 +116,14 @@ class MyHeuristic(Heuristics):
 
     # use Greedy_0 to find a lower bound
     def greedy_0(self, instance: Instance, decisions: list) -> tuple:
-
-        print(decisions)
-        rankings = MyRelaxationSolver.get_item_order(self, instance)
+      
+        rankings = self.get_item_order(instance)
         assignments = decisions.copy()
 
         total_value = 0
         current_weight = 0
         
-        # chosen items have to be in solution --> pack them completely
+        # fixed items have to be in solution --> pack them completely
         for ratio, value, weight, index in rankings:
             if assignments[index] == 1:
                 total_value += value
@@ -131,8 +141,7 @@ class MyHeuristic(Heuristics):
             if current_weight + weight <= instance.capacity:
                 total_value += value
                 current_weight += weight
-                assignments[index] = 1.0
-                print("TOTAL VALUE after packing object", total_value, current_weight, "\n")
+                assignments[index] = 1
             else:
                 assignments[index] = 0
         # final total_value can be used as lower bound

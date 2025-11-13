@@ -110,6 +110,6 @@ def my_search_order(node: BnBNode) -> Any:
     # counter = counter + 1
     #return (counter % basis)
 
-    # first use highest upper_bound
+    # first use node with highest upper_bound
     upper_bound = node.relaxed_solution.upper_bound
     return -upper_bound

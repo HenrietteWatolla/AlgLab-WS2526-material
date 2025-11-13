@@ -57,6 +57,7 @@ class MyBranchingStrategy(BranchingStrategy):
     from the node's relaxed solution (e.g., fractional values, scores, etc.).
     The simplest strategy is to pick an unfixed variable and split on 0/1.
     """
+    
     # branch on the last variable that has not yet been fixed
     def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
 
@@ -68,4 +69,72 @@ class MyBranchingStrategy(BranchingStrategy):
             return ()
         return node.branching_decisions.split_on(last_unfixed)
     
-    # branch on the most valuable item / the best ratio / the highest weight
+
+    # branch on best ratio here
+    """def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
+        best_ratio = 0
+        best_index = -1 
+        for index, val in enumerate(node.branching_decisions):
+            if val is None:
+                current_value = node.relaxed_solution.instance.items[index].value
+                current_weight = node.relaxed_solution.instance.items[index].weight
+                current_ratio = current_value / current_weight
+                if (current_ratio) > best_ratio:
+                    best_ratio = current_ratio
+                    best_index = index
+
+        # branch on node with best ratio
+        if best_index < 0:
+            return ()
+        return node.branching_decisions.split_on(best_index)
+    """
+
+    # branch on most valuable item
+    """def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
+        highest_value = 0
+        best_index = -1 
+        for index, val in enumerate(node.branching_decisions):
+            if val is None:
+                current_value = node.relaxed_solution.instance.items[index].value
+                if (current_value) > highest_value:
+                    highest_value = current_value
+                    best_index = index
+
+        # branch on node with highest value
+        if best_index < 0:
+            return ()
+        return node.branching_decisions.split_on(best_index)
+    """
+
+    # branch on item with most weight
+    """def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
+        highest_weight = 0
+        best_index = -1 
+        for index, val in enumerate(node.branching_decisions):
+            if val is None:
+                current_weight = node.relaxed_solution.instance.items[index].weight
+                if (current_weight) > highest_weight:
+                    highest_weight = current_weight
+                    best_index = index
+
+        # branch on node with highest weight
+        if best_index < 0:
+            return ()
+        return node.branching_decisions.split_on(best_index)
+    """
+    
+    # branch on item with littlest weight
+    """def make_branching_decisions(self, node: BnBNode) -> Tuple[BranchingDecisions, ...]:
+        littlest_weight = float("inf")
+        best_index = -1
+        for index, val in enumerate(node.branching_decisions):
+            if val is None:
+                current_weight = node.relaxed_solution.instance.items[index].weight
+                if (current_weight) <  littlest_weight:
+                    littlest_weight = current_weight
+                    best_index = index
+        # branch on node with littlest weight
+        if best_index < 0:
+            return ()
+        return node.branching_decisions.split_on(best_index)
+    """

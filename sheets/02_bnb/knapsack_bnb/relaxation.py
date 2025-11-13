@@ -100,6 +100,7 @@ class MyRelaxationSolver(RelaxationSolver):
 
     --> use fractional knapsack for upper bound
     """
+
     # returns list with tupels [(ratio, value, weight, index)] sorted by ratio
     def get_item_order(self, instance: Instance) -> list:
 
@@ -111,7 +112,6 @@ class MyRelaxationSolver(RelaxationSolver):
         
         # sort items by ratio (first entry in tuple) non-increasingly
         ratios.sort(key = lambda x: x[0], reverse=True)
-        print(ratios)
         return ratios
 
     # pack items with decision = 1, use fractional knapsack on remaining items
@@ -146,54 +146,14 @@ class MyRelaxationSolver(RelaxationSolver):
                 assignments[index] = 1.0
             else:
                 fraction = (instance.capacity - current_weight) / weight
-                total_value += value * fraction
-                assignments[index] = fraction
+                total_value += int(value * fraction)
+                # add only the part of the fraction so that the upper bound will be an int
+                assignments[index] = int(value * fraction) / value
                 break
 
         assignments = [0.0 if x is None else x for x in assignments]
-        print("TOTAL VALUE end", total_value, current_weight, decisions, assignments, "\n")
         # final total_value can be used as upper bound
         return total_value, assignments
-
-    # use Greedy_0 to find a lower bound
-    def greedy_0(self, instance: Instance, decisions: list) -> tuple:
-
-        print(decisions._assignments)
-        rankings = MyRelaxationSolver.get_item_order(self, instance)
-        assignments = decisions._assignments.copy()
-
-        total_value = 0
-        current_weight = 0
-        
-        # chosen items have to be in solution --> pack them completely
-        for ratio, value, weight, index in rankings:
-            if assignments[index] == 1:
-                total_value += value
-                current_weight += weight
-            # skip not chosen items
-            else:
-                continue
-
-        # do greedy_0 for all remainig items
-        for ratio, value, weight, index in rankings:
-            # skip already fixed items
-            if (assignments[index] == 1 or assignments[index] == 0):
-                continue
-            # add complete item, if it fits, else skip item
-            if current_weight + weight <= instance.capacity:
-                total_value += value
-                current_weight += weight
-                assignments[index] = 1.0
-                print("TOTAL VALUE after packing object", total_value, current_weight, "\n")
-            else:
-                assignments[index] = 0
-        # final total_value can be used as lower bound
-        return total_value, assignments
-
-    # track the so far best solution
-    best_solution = 0
-    best_assignments = []
-
 
     def solve(
         self, instance: Instance, decisions: BranchingDecisions
@@ -203,14 +163,6 @@ class MyRelaxationSolver(RelaxationSolver):
         if used_weight > instance.capacity:
             return RelaxedSolution.create_infeasible(instance)
         
-        lower_bound, greedy_selection = self.greedy_0(instance, decisions)
         upper_bound, relaxed_selection = self.fractional_knapsack(instance, decisions)
 
-        # update best solution if necessary
-        if lower_bound > MyRelaxationSolver.best_solution:
-            MyRelaxationSolver.best_solution = lower_bound
-            MyRelaxationSolver.best_assignments = greedy_selection
-
-        if (MyRelaxationSolver.best_solution >= int(upper_bound)):
-            return RelaxedSolution(instance, MyRelaxationSolver.best_assignments, MyRelaxationSolver.best_solution)    
         return RelaxedSolution(instance, relaxed_selection, upper_bound)
