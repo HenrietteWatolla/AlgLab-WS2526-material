@@ -6,6 +6,8 @@ from typing import Iterable
 import networkx as nx
 from pysat.solvers import Gluecard4 as SATSolver
 
+import time
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -53,24 +55,20 @@ class KCenterDecisionVariant:
     def __init__(self, distances: Distances, k: int) -> None:
         self.distances = distances
         # TODO: Implement me!
+
         # Solution model
         self.k = k
-        # list of nodes
         self.nodes = list(self.distances.all_vertices())
 
         # mapping of nodes and variable indices
         self.nodes_map_vars = {node: index for index, node in enumerate(self.nodes, start = 1)}
-        # self.vars_map_nodes = {v: n for n, v in self.nodes_map_vars.items()}
 
         self.solver = SATSolver()
         
-        # create one variable per node --> choose as center = 1, else = 0
-        self.vars = []
-        for node in self.nodes:
-            self.vars.append(self.nodes_map_vars[node])
+        #self.vars = [self.nodes_map_vars[node] for node in self.nodes]
 
         # at most k nodes can be chosen
-        self.solver.add_atmost([self.nodes_map_vars[v] for v in self.nodes], k)
+        self.solver.add_atmost(list(self.nodes_map_vars.values()), k)
 
         self._infeasible = False
         self._solution: list[NodeId] | None = None
@@ -86,12 +84,11 @@ class KCenterDecisionVariant:
         for v in self.nodes:
             # find nodes in given distance
             reachable = list(self.distances.vertices_in_range(v, limit))
+
+            # no center can cover v within limit --> instance infeasible
             if not reachable:
-                # no center can cover v within limit --> instance infeasible
-                #self._solution = None
                 self._infeasible = True
-                # return
-                continue
+                return
             
             # OR-Constraint
             clause = [self.nodes_map_vars[u] for u in reachable]
@@ -107,7 +104,7 @@ class KCenterDecisionVariant:
 
         if not self.solver.solve():
             return None
-     
+        
         model = self.solver.get_model()
         model_set = set(model)
         chosen_centers = []
@@ -118,18 +115,6 @@ class KCenterDecisionVariant:
 
         self._solution = chosen_centers
         return self._solution
-
-        """vars_map_node = {}
-        for node, index in self.nodes_map_vars.items():
-            vars_map_node.update({index: node})
-
-        # vars > 0 are chosen centers
-        for var in model:
-            if var > 0 and var in vars_map_node:
-                chosen_centers.append(vars_map_node[var])
-        self._solution = chosen_centers
-        return self._solution
-        """
 
     def get_solution(self) -> list[NodeId]:
         """Returns the solution if available; raises an error otherwise."""
@@ -149,13 +134,8 @@ class KCentersSolver:
         self.graph = graph
 
         # TODO: Implement me!
-        #self.distances = Distances.__init__(self, graph)
-        self.distances = Distances(graph)
-        
-        # sorted list of possible c values in increasing order
-        # means all distances between nodes
-        self.candidates = sorted(set(self.distances.sorted_distances()))
-        # self.candidates = sorted(set(Distances.sorted_distances(self.distances)))
+        self.distances = Distances(self.graph)
+        self.candidates = self.distances.sorted_distances()
         self.nodes = list(self.distances.all_vertices())
 
     def solve_heur(self, k: int) -> list[NodeId]:
@@ -175,11 +155,11 @@ class KCentersSolver:
         centers = []
         centers.append(self.nodes[0])
 
-        # distance from each node to the nearest of chosen centers
+        # distance from each node to the chosen center
         # start with distance to the first center
         nearest = {v: self.distances.dist(v, centers[0]) for v in self.nodes}
 
-        # choose more centers as long as the cardinality constraint is valid
+        # choose more centers as long as the cardinality constraint is valid    
         while len(centers) < k:
             # next center is node that is as far away as possible from centers already chosen
             farthest = max(self.nodes, key=lambda u: nearest[u])
@@ -207,7 +187,7 @@ class KCentersSolver:
         # candidates in list
         candidates = []
         for c in self.candidates:
-            if c <= upper_bound:
+            if c < upper_bound:
                 candidates.append(c)
         candidates.sort()
 
@@ -222,20 +202,38 @@ class KCentersSolver:
         best_solution = heuristic_centers
         best_value = upper_bound
 
-        while left < right:
+        # binary search is more efficient here, but just do it to a fitting accuracy
+        while left <= (right-(left/100)):
             middle = (left + right) // 2
+
             # create a fresh decision instance for the middle
             decision = KCenterDecisionVariant(self.distances, k)
             decision.limit_distance(candidates[middle])
+
+            # bottleneck
             sol = decision.solve()
 
-            # testet value ist possible
+            # test if value is possible
             # --> update best solution + search for smaller distances
             if sol is not None:
                 best_solution = sol
-                best_value = candidates[middle]
                 right = middle - 1
             else:
                 left = middle + 1
+        
+        # at one point, go further sequentially
+        # --> here this is not necessary anymore, because the accuracy of the binary search solution is already enough
+        """
+        for c in candidates[left:right+1]:
+            decision = KCenterDecisionVariant(self.distances, k)
+            decision.limit_distance(c)
+            sol = decision.solve()
+            # found smallest = best solution
+            if sol is not None:
+                best_solution = sol
+            # not yet feasible
+            else:
+                break
+        """
 
         return best_solution
