@@ -36,9 +36,17 @@ class BottleneckTSPSolver:
         """
         self.graph = graph
         # TODO: Implement me!
+        # only edge weights can give a valid solution for maximal single traveling time
+        # --> delete duplicates via set
+        self.candidates = sorted({self.graph.edges[e]["weight"] for e in self.graph.edges()})
 
     def lower_bound(self) -> float:
         # TODO: Implement me!
+        # exact as many edges as nodes in the graph are used for hamiltonian cycle
+        # --> lower bound is at least n'th smallest edge weight
+        nodes = len(self.graph.nodes())
+        self.minimal_index = nodes - 1
+        return self.candidates[self.minimal_index]
 
     def optimize_bottleneck(
         self,
@@ -48,6 +56,60 @@ class BottleneckTSPSolver:
         """
         Find the optimal bottleneck tsp tour.
         """
-
         self.timer = Timer(time_limit)
         # TODO: Implement me!
+        
+        # use full graph for modelling, but disable heavy edges
+        model = HamiltonianCycleModel(self.graph)
+
+        # init binary search
+        left = (len(self.graph.nodes())) - 1
+        right = len(self.candidates) - 1
+        shortest_edge_weight = self.candidates[len(self.candidates) - 1]
+        best_solution = None
+
+        # binary search
+        while left <= right:
+            middle = (left + right) // 2
+            candidate_weight = self.candidates[middle]
+
+            # build assumptions
+            assumptions = []
+            for (v, w, data) in self.graph.edges(data = True):
+                var = model.var(v, w)
+                if data["weight"] > candidate_weight:
+                    assumptions.append(-var)
+
+            """    
+            # switch off too heavy edges in the graph via assumptions
+            self.assumptions = []
+            for (v, w, data) in self.graph.edges(data = True):
+                if data["weight"] > candidate_weight:
+                    self.assumptions.append(-model.var(v, w))
+            """
+
+            # try to find Hamiltonian in graph without the heavy edges
+            solution = model.solve(assumptions = assumptions)
+
+            """
+            # build subgraph with edges <= candidate_weight
+            self.subgraph = nx.Graph()
+            for v, w, data in self.graph.edges(data = True):
+                if data["weight"] <= candidate_weight:
+                    self.subgraph.add_edge(v, w)
+                    
+            # try to find Hamiltonian cycle in builded graph
+            solution = model.solve()
+            """
+
+            if solution is not None:
+                # Hamiltonian cycle exists
+                best_solution = solution
+                shortest_edge_weight = candidate_weight
+                # try smaller edge weight, because hamiltonian cycle could be possible with less edges
+                right = middle - 1
+            else:
+                # more (heavier) edges needed to make a hamiltonian cycle possible
+                left = middle + 1
+
+        return best_solution

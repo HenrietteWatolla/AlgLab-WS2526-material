@@ -21,23 +21,32 @@ class HamiltonianCycleModel:
         
         for v in graph.nodes():
             # get neighbors of the node
-            self.neighbors = [self.var(v, w) for w in graph.neighbors(v)]
-            self.no_neighbors = [-x for x in self.neighbors]
+            neighbors = [self.var(v, w) for w in graph.neighbors(v)]
+            no_neighbors = [-x for x in neighbors]
             # degree constraint
-            self.solver.add_atmost(self.neighbors, 2)
-            self.solver.add_atmost(self.no_neighbors, len(self.neighbors)-2)
+            self.solver.add_atmost(neighbors, 2)
+            self.solver.add_atmost(no_neighbors, len(neighbors)-2)
 
     # function for fast access to the variables
     def var(self, v, w):
         return self.edge_map_vars[(min(v, w), max(v, w))]
+    
+    # switch on / off allowed edges
+    #def assumption_for_edge(self, v, w, allowed = True):
+    #    var = self.var(v, w)
+    #    return var if allowed else -var
 
-    def solve(self) -> list[tuple[int, int]] | None:
+    def solve(self, assumptions = None) -> list[tuple[int, int]] | None:
         """
         Solves the Hamiltonian Cycle Problem. If a HC is found,
         its edges are returned as a list.
         If the graph has no HC, 'None' is returned.
         """
         # TODO: Implement me!
+        # work with assumptions --> if chosen / fixed variables already satisfy clause, dont add it to the model
+        if assumptions is None:
+            assumptions = []
+
         # use the SAT-solver to find subtour that accepts degree constraint
         while True:
             model = self.solver.solve(assumptions = self.assumptions)
@@ -52,6 +61,7 @@ class HamiltonianCycleModel:
                 if var in model:
                     chosen_edges.append((v, w))
 
+            # build graph from chosen edges
             self.subtour_graph = nx.Graph()
             self.subtour_graph.add_edges_from(chosen_edges)
             self.components = list(nx.connected_components(self.subtour_graph))
@@ -60,12 +70,11 @@ class HamiltonianCycleModel:
             if (len(self.components)) == 1 and (len(self.subtour_graph.nodes()) == len(self.graph.nodes())):
                 return list(self.subtour_graph.edges())
 
-            # more than one component --> connect them as possible
-            if (len(self.components)) > 1:
-                # add subtour elimination constraint iteratively
-                # --> don't consider every possible subset of nodes at once --> exponential
-                # better: add them incrementally (DFJ)
-                for component in self.components:
+            # more than one component --> add subtour elimination constraint iteratively
+            # --> don't consider every possible subset of nodes at once --> exponential
+            # better: add them incrementally (DFJ)
+            for component in self.components:
+                if len(component) < len(self.graph.nodes()):
                     # find all edges that leaving the component
                     edges_leaving = [
                         (v, w)
@@ -75,4 +84,5 @@ class HamiltonianCycleModel:
                     ]
                     if edges_leaving:
                         # disjunctive clause --> at least one of the leaving edges must be chosen
-                        self.solver.add_clause([self.var(v,w) for (v,w) in edges_leaving])
+                        clause = ([self.var(v,w) for (v,w) in edges_leaving])
+                        self.solver.add_clause(clause)

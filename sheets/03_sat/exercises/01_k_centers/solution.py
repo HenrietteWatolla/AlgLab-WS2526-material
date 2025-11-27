@@ -64,8 +64,6 @@ class KCenterDecisionVariant:
         self.nodes_map_vars = {node: index for index, node in enumerate(self.nodes, start = 1)}
 
         self.solver = SATSolver()
-        
-        #self.vars = [self.nodes_map_vars[node] for node in self.nodes]
 
         # at most k nodes can be chosen
         self.solver.add_atmost(list(self.nodes_map_vars.values()), k)
