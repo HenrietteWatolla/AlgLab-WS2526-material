@@ -19,35 +19,17 @@ class HamiltonianCycleModel:
             self.edge_map_vars[key] = self.var_counter
             self.var_counter += 1
         
-        # function for fast access to the variables
-        def var(v, w):
-            return self.edge_map_vars[(min(v, w), max(v, w))]
-        
-        # get neighbors of the nodes
-        self.neighbors = [var(v, w) for w in graph.neighbors(v)]
-        self.no_neighbors = [-x for x in self.neighbors]
-        
-        # degree constraint
-        self.solver.add_atmost(self.neighbors, 2)
-        self.solver.add_atmost(self.no_neighbors, len(self.neighbors)-2)
+        for v in graph.nodes():
+            # get neighbors of the node
+            self.neighbors = [self.var(v, w) for w in graph.neighbors(v)]
+            self.no_neighbors = [-x for x in self.neighbors]
+            # degree constraint
+            self.solver.add_atmost(self.neighbors, 2)
+            self.solver.add_atmost(self.no_neighbors, len(self.neighbors)-2)
 
-        # subtour elimination constraint
-        # --> dont consider every possible subset of nodes at once --> exponential
-        # better: add them incrementally (DFJ)
-        for component in nx.connected_components(self.graph):
-            # find all edges that leaving the component
-            edges_leaving = [
-                (v, w)
-                for v in component
-                for w in self.graph.nodes()
-                if w not in component and self.graph.has_edge(v, w)
-            ]
-            # disjunctive clause --> at least one of the leaving edges must be chosen
-            self.solver.add_clause([var(v,w) for (v,w) in edges_leaving])
-
-
-        self.subgraphs = [self.graph.subgraph(c).copy() for c in nx.connected_components(self.graph)]
-
+    # function for fast access to the variables
+    def var(self, v, w):
+        return self.edge_map_vars[(min(v, w), max(v, w))]
 
     def solve(self) -> list[tuple[int, int]] | None:
         """
@@ -56,7 +38,41 @@ class HamiltonianCycleModel:
         If the graph has no HC, 'None' is returned.
         """
         # TODO: Implement me!
+        # use the SAT-solver to find subtour that accepts degree constraint
+        while True:
+            model = self.solver.solve(assumptions = self.assumptions)
+            # no solution
+            if not model:
+                return None
+            
+            model = self.solver.get_model()
+            # get chosen edges
+            chosen_edges = []
+            for (v, w), var in self.edge_map_vars.items():
+                if var in model:
+                    chosen_edges.append((v, w))
 
-        # special case: graph is not connected
-        if len(self.subgraphs) > 1:
-            return None
+            self.subtour_graph = nx.Graph()
+            self.subtour_graph.add_edges_from(chosen_edges)
+            self.components = list(nx.connected_components(self.subtour_graph))
+
+            # only one component --> this is the hamiltonian cycle
+            if (len(self.components)) == 1 and (len(self.subtour_graph.nodes()) == len(self.graph.nodes())):
+                return list(self.subtour_graph.edges())
+
+            # more than one component --> connect them as possible
+            if (len(self.components)) > 1:
+                # add subtour elimination constraint iteratively
+                # --> don't consider every possible subset of nodes at once --> exponential
+                # better: add them incrementally (DFJ)
+                for component in self.components:
+                    # find all edges that leaving the component
+                    edges_leaving = [
+                        (v, w)
+                        for v in component
+                        for w in self.graph.nodes()
+                        if w not in component and self.graph.has_edge(v, w)
+                    ]
+                    if edges_leaving:
+                        # disjunctive clause --> at least one of the leaving edges must be chosen
+                        self.solver.add_clause([self.var(v,w) for (v,w) in edges_leaving])
