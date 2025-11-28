@@ -30,35 +30,27 @@ class HamiltonianCycleModel:
     # function for fast access to the variables
     def var(self, v, w):
         return self.edge_map_vars[(min(v, w), max(v, w))]
-    
-    # switch on / off allowed edges
-    #def assumption_for_edge(self, v, w, allowed = True):
-    #    var = self.var(v, w)
-    #    return var if allowed else -var
 
-    def solve(self, assumptions = None) -> list[tuple[int, int]] | None:
+    def solve(self) -> list[tuple[int, int]] | None:
         """
         Solves the Hamiltonian Cycle Problem. If a HC is found,
         its edges are returned as a list.
         If the graph has no HC, 'None' is returned.
         """
         # TODO: Implement me!
-        # work with assumptions --> if chosen / fixed variables already satisfy clause, dont add it to the model
-        if assumptions is None:
-            assumptions = []
 
-        # use the SAT-solver to find subtour that accepts degree constraint
+        # use the SAT-solver to find subtour that already accepts degree constraint
         while True:
-            model = self.solver.solve(assumptions = self.assumptions)
-            # no solution
+            model = self.solver.solve()
+            # no solution that accepts degree constraint
             if not model:
                 return None
             
             model = self.solver.get_model()
-            # get chosen edges
+            # get chosen edges --> only positive literals represent chosen edges
             chosen_edges = []
             for (v, w), var in self.edge_map_vars.items():
-                if var in model:
+                if model[var - 1] > 0:
                     chosen_edges.append((v, w))
 
             # build graph from chosen edges
@@ -74,15 +66,18 @@ class HamiltonianCycleModel:
             # --> don't consider every possible subset of nodes at once --> exponential
             # better: add them incrementally (DFJ)
             for component in self.components:
-                if len(component) < len(self.graph.nodes()):
-                    # find all edges that leaving the component
-                    edges_leaving = [
-                        (v, w)
-                        for v in component
-                        for w in self.graph.nodes()
-                        if w not in component and self.graph.has_edge(v, w)
-                    ]
-                    if edges_leaving:
-                        # disjunctive clause --> at least one of the leaving edges must be chosen
-                        clause = ([self.var(v,w) for (v,w) in edges_leaving])
-                        self.solver.add_clause(clause)
+                # find all edges that leaving the component
+                edges_leaving = [
+                    (v, w)
+                    for v in component
+                    for w in self.graph.nodes()
+                    if w not in component and self.graph.has_edge(v, w)
+                ]
+
+                # isolated component --> the found subtours can't get connected
+                if not edges_leaving:
+                    return None
+                
+                # disjunctive clause --> at least one of the leaving edges must be chosen
+                clause = ([self.var(v,w) for (v,w) in edges_leaving])
+                self.solver.add_clause(clause)

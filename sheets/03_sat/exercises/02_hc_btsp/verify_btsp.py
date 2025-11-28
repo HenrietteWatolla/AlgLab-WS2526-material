@@ -59,7 +59,7 @@ def att48():
     solve_instance_and_check_bottleneck("./instances/att48.tsp.pickle", 16382.8968)
 
 
-@mandatory_testcase(max_runtime_s=600)
+@mandatory_testcase(max_runtime_s=60)
 def lin318():
     solve_instance_and_check_bottleneck("./instances/lin318.tsp.pickle", 4870.5734)
 

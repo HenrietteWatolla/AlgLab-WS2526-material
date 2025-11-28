@@ -4,7 +4,7 @@ from enum import Enum
 import networkx as nx
 from _timer import Timer
 from solution_hamiltonian import HamiltonianCycleModel
-
+import time
 
 class SearchStrategy(Enum):
     """
@@ -37,8 +37,8 @@ class BottleneckTSPSolver:
         self.graph = graph
         # TODO: Implement me!
         # only edge weights can give a valid solution for maximal single traveling time
-        # --> delete duplicates via set
-        self.candidates = sorted({self.graph.edges[e]["weight"] for e in self.graph.edges()})
+        self.candidates = [self.graph.edges[e]["weight"] for e in self.graph.edges()]
+        self.candidates.sort()
 
     def lower_bound(self) -> float:
         # TODO: Implement me!
@@ -58,9 +58,6 @@ class BottleneckTSPSolver:
         """
         self.timer = Timer(time_limit)
         # TODO: Implement me!
-        
-        # use full graph for modelling, but disable heavy edges
-        model = HamiltonianCycleModel(self.graph)
 
         # init binary search
         left = (len(self.graph.nodes())) - 1
@@ -72,35 +69,17 @@ class BottleneckTSPSolver:
         while left <= right:
             middle = (left + right) // 2
             candidate_weight = self.candidates[middle]
-
-            # build assumptions
-            assumptions = []
-            for (v, w, data) in self.graph.edges(data = True):
-                var = model.var(v, w)
-                if data["weight"] > candidate_weight:
-                    assumptions.append(-var)
-
-            """    
-            # switch off too heavy edges in the graph via assumptions
-            self.assumptions = []
-            for (v, w, data) in self.graph.edges(data = True):
-                if data["weight"] > candidate_weight:
-                    self.assumptions.append(-model.var(v, w))
-            """
-
-            # try to find Hamiltonian in graph without the heavy edges
-            solution = model.solve(assumptions = assumptions)
-
-            """
-            # build subgraph with edges <= candidate_weight
+            
+            # build subgraph with edges <= candidate_weight only
             self.subgraph = nx.Graph()
             for v, w, data in self.graph.edges(data = True):
                 if data["weight"] <= candidate_weight:
                     self.subgraph.add_edge(v, w)
+            
+            model = HamiltonianCycleModel(self.subgraph)
                     
-            # try to find Hamiltonian cycle in builded graph
+            # try to find Hamiltonian cycle in builded subgraph
             solution = model.solve()
-            """
 
             if solution is not None:
                 # Hamiltonian cycle exists
@@ -109,7 +88,7 @@ class BottleneckTSPSolver:
                 # try smaller edge weight, because hamiltonian cycle could be possible with less edges
                 right = middle - 1
             else:
-                # more (heavier) edges needed to make a hamiltonian cycle possible
+                # more (heavier) edges necessary to make a hamiltonian cycle possible
                 left = middle + 1
-
+                
         return best_solution
