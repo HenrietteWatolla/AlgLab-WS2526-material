@@ -74,8 +74,6 @@ class GurobiTspSolver:
         Return the current solution as a graph.
         """
         # TODO: Implement me!
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", self._sol_graph)
-        print("nodes ", self._sol_graph.nodes(), "edges ", self._sol_graph.edges())
         return self._sol_graph
 
     def get_objective(self) -> typing.Optional[float]:
@@ -107,14 +105,10 @@ class GurobiTspSolver:
         # subour elimination constraints added iteratively via callback
         def callback(model, where):
 
-            print("where", where)
             if where == gp.GRB.Callback.MIPSOL:
-
-                ("WHY I CANT GET HERE?????????????????????????????")
-                #solution = self._model.cbGetSolution
                 solution = model.cbGetSolution(self._vars)
 
-                # build graph from solution values > 0.5
+                # build graph from solution values >= 0.5
                 selected_graph = nx.Graph()
                 selected_graph.add_nodes_from(self.graph.nodes())
                 for (u, v), val in solution.items():
@@ -123,12 +117,11 @@ class GurobiTspSolver:
 
                 # find subtours
                 components = list(nx.connected_components(selected_graph))
-                print("comp8888888888888888888888888888888888888888888888888888888888888888888888888888onents ", components)
                 # only one connected component --> single hamiltonian cycle
                 if (len(components) == 1):
-                    return
+                    return None
 
-                # for every strict subset of set of vertices, add subour elimination constraint
+                # for every subtour, add subour elimination constraints
                 for comp in components:
                     edges_leaving = []
                     for v in comp:
@@ -139,13 +132,9 @@ class GurobiTspSolver:
                                 if e in self._vars:
                                     edges_leaving.append(e)
 
-                    # isolated component --> the found subtours can't get connected
-                    if not edges_leaving:
-                        continue
-
                     # lazy constraint --> enforce that at least 2 edges leave the component
                     if edges_leaving:
-                        model.cbLazy(gp.quicksum(self._vars[e] for e in edges_leaving) >= 2)
+                        model.cbLazy(gp.quicksum(self._vars[e] for e in edges_leaving) >= self.k)
 
         self._model.optimize(callback)  # pass callback with the solve call
 
