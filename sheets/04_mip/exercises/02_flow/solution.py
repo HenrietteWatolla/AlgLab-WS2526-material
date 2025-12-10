@@ -36,12 +36,14 @@ class MiningRoutingSolver:
         # tunnel is used or not, considering the direction
         used_tunnel_directed = {}
         for t in w_tunnels:
-            self.mine_flow[(t[0], t[1])] = self._model.addVar(vtype = GRB.INTEGER, name = f"flow_{t[0]}_{t[1]}", lb = 0)
-            self.mine_flow[(t[1], t[0])] = self._model.addVar(vtype = GRB.INTEGER, name = f"flow_{t[1]}_{t[0]}", lb = 0)
+            # both flows necessary?
+            self.mine_flow[(t[0], t[1])] = self._model.addVar(vtype = GRB.CONTINUOUS, name = f"flow_{t[0]}_{t[1]}", lb = 0)
+            self.mine_flow[(t[1], t[0])] = self._model.addVar(vtype = GRB.CONTINUOUS, name = f"flow_{t[1]}_{t[0]}", lb = 0)
             used_tunnel_directed[(t[0], t[1])] = self._model.addVar(vtype = GRB.BINARY, name = f"tunnel_{t[0]}_{t[1]}")
             used_tunnel_directed[(t[1], t[0])] = self._model.addVar(vtype = GRB.BINARY, name = f"tunnel_{t[1]}_{t[0]}")
 
         # add constraints
+        big_M = 1000
         # only one direction can be used at once
         for source, target, throughput, costs in w_tunnels:
             self._model.addConstr(
@@ -54,16 +56,24 @@ class MiningRoutingSolver:
             self._model.addConstr(
                 (self.mine_flow[(target, source)] <= throughput * used_tunnel_directed[(target, source)])
             )
+            # flow and usage of tunnels must be connected (if tunnel unused --> flow must be 0)
+            # use Big M
+            self._model.addConstr(
+                used_tunnel_directed[(source, target)] * big_M >= self.mine_flow[(source, target)]
+            )
+            self._model.addConstr(
+                used_tunnel_directed[(target, source)] * big_M >= self.mine_flow[(target, source)]
+            )
 
         # budget constraint
         self._model.addConstr(
-                (gp.quicksum(costs * (used_tunnel_directed[(source, target)] + used_tunnel_directed[(target, source)])
+                (gp.quicksum((costs * (used_tunnel_directed[(source, target)] + used_tunnel_directed[(target, source)]))
                     for source, target, throughput, costs in w_tunnels) <= instance.budget)
             )
         # flow constraint --> at least incoming ore, at most +mine's capacity has to exit a mine
         for mine in w_mines:
-            flow_out = gp.LinExpr()
-            flow_in = gp.LinExpr()
+            flow_out = 0
+            flow_in = 0
             for source, target, throughput, costs in w_tunnels:
                 if source == mine[0]:
                     flow_out = flow_out + self.mine_flow[(source, target)]
@@ -74,8 +84,8 @@ class MiningRoutingSolver:
         
         # elevator eat up ore completely
         center = instance.elevator_location
-        flow_out_elevator = gp.LinExpr()
-        flow_in_elevator = gp.LinExpr()
+        flow_out_elevator = 0
+        flow_in_elevator = 0
         for source, target, throughput, costs in w_tunnels:
             if source == center:
                 flow_out_elevator = flow_out_elevator + self.mine_flow[(source, target)]
@@ -97,12 +107,20 @@ class MiningRoutingSolver:
         logging.info("Solving model...")
 
         self._model.optimize()
+        solution_flows = []
+        print("solution count", self._model.SolCount)
+        print("mine flow entries ", self.mine_flow.items())
         if self._model.status == GRB.OPTIMAL:
             # collect all flow variables with positive value
-            solution_flows = []
-            print("solution ", self.mine_flow.items())
+            #print("solution ", self.mine_flow.items())
             for (source, target), var in self.mine_flow.items():
-                if var.X > 0:
+                #solution_flows.append((source, target), var.X)
+                print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+                if var.X >= 0:
+                    print("JJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     flow_value = var.X
-                    solution_flows.append(((source, target), flow_value))
+                    print("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ")
+                    solution_flows.append((source, target), flow_value) #hwy this line is not done?
+                    print("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNn")
+        print("solution ", solution_flows)
         return Solution(flow = solution_flows)
