@@ -36,6 +36,7 @@ class Heuristics:
     def input_order(graph: nx.Graph) -> List[int]:
         return list(graph.nodes())
 
+    """
     def random_order(graph: nx.Graph, seed: int | None = None) -> List[int]:
         nodes = list(graph.nodes())
         randseq = random.Random(seed) # reproducible randomness, seed fix random sequence
@@ -48,10 +49,14 @@ class Heuristics:
             key = lambda v: graph.degree(v),
             reverse = True
         )
+    """
 
     def multi_start_greedy(graph: nx.Graph, runs: int = 50, seed: int | None = None) -> Coloring:
-        best_coloring: Heuristics.Coloring | None = None
-        min_colors = float("inf")
+
+        # native greedy is always upper bound --> try to get better with random node order
+        input_order = Heuristics.input_order(graph)
+        best_coloring =  Heuristics.greedy_coloring(graph, input_order)
+        min_colors = Heuristics.num_colors(best_coloring)
 
         randseq = random.Random(seed)
 

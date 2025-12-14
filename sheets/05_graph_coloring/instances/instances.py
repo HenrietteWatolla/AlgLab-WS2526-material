@@ -12,12 +12,12 @@ class Instances:
         instances.append(("K23", nx.complete_graph(23)))
 
         # bipartite graphs --> only two colors necessary
-        instances.append(("bipartit3-5", nx.complete_bipartite_graph(3, 5)))
-        instances.append(("bipartit1-7", nx.complete_bipartite_graph(1, 7)))
-        instances.append(("bipartit9-4", nx.complete_bipartite_graph(9, 4)))
+        instances.append(("bipartite3-5", nx.complete_bipartite_graph(3, 5)))
+        instances.append(("bipartite1-7", nx.complete_bipartite_graph(1, 7)))
+        instances.append(("bipartite9-4", nx.complete_bipartite_graph(9, 4)))
 
         # cycle graphs (2 colors for even, 3 colors for odd cycles)
-        instances.append(("cylceEven", nx.cycle_graph(24)))
+        instances.append(("cycleEven", nx.cycle_graph(24)))
         instances.append(("cycleOdd", nx.cycle_graph(25)))
 
         # paths --> two colors
@@ -38,8 +38,6 @@ class Instances:
 
         # barabasi_albert_graph (random) --> sequentielly adding of nodes with degree m
         # --> nodes with high degree --> DSATUR much better
-        nx.barabasi_albert_graph(50, 3, seed = 42)
-        nx.barabasi_albert_graph(50, 4, seed = 42)
         instances.append(("barabasi50-2-42", nx.barabasi_albert_graph(50, 2, seed = 42)))
         instances.append(("barabasi50-3-42", nx.barabasi_albert_graph(50, 3, seed = 42)))
         instances.append(("barabasi50-4-42", nx.barabasi_albert_graph(50, 4, seed = 42)))
@@ -47,8 +45,8 @@ class Instances:
         instances.append(("barabasi100-10-13", nx.barabasi_albert_graph(100, 10, seed = 13)))
         instances.append(("barabasi100-10-20", nx.barabasi_albert_graph(100, 10, seed = 20)))
         instances.append(("barabasi100-10-42", nx.barabasi_albert_graph(100, 10, seed = 42)))
-        instances.append(("barabasi100-10-55", nx.barabasi_albert_graph(100, 10, seed = 55)))
-        instances.append(("barabasi100-25-55", nx.barabasi_albert_graph(100, 25, seed = 55)))
+        #instances.append(("barabasi100-10-55", nx.barabasi_albert_graph(100, 10, seed = 55)))
+        #instances.append(("barabasi100-25-55", nx.barabasi_albert_graph(100, 25, seed = 55)))
         #instances.append(("barabasi150-33-66", nx.barabasi_albert_graph(150, 33, seed = 66)))
 
         # kneser graph (classic, n > k > 0) --> highly symmetric, challenging for greedy
@@ -63,6 +61,20 @@ class Instances:
         instances.append(("kneser15-2", nx.kneser_graph(15, 2)))
         instances.append(("kneser15-4", nx.kneser_graph(15, 4)))
         # boss level
-        instances.append(("kneser15-5", nx.kneser_graph(15, 5)))
+        #instances.append(("kneser15-5", nx.kneser_graph(15, 5)))
 
         return instances
+
+    @staticmethod
+    def graph_classes():
+        instances = Instances.generate_test_instances()
+        classes = {
+            "complete": [name for name, _ in instances if "K" in name],
+            "bipartite": [name for name, _ in instances if "bipartite" in name],
+            "cycle": [name for name, _ in instances if "cycle" in name],
+            "path": [name for name, _ in instances if "path" in name],
+            "erdos_renyi": [name for name, _ in instances if "erdos" in name],
+            "barabasi": [name for name, _ in instances if "barabasi" in name],
+            "kneser": [name for name, _ in instances if "kneser" in name or "petersenGraph" in name]
+        }
+        return classes
