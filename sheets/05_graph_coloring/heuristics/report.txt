@@ -1,0 +1,14 @@
+One seperate performance profile for each of the instance classes:
+- complete graphs
+- bipartite graphs
+- cycle graphs
+- path graphs
+- erdos renyi raphs
+- kneser graphs
+- barabasi albert graphs
+
+--> for complete, bipartite, cycle, path graphs the best solution k = number of nodes is already given through the heuristics
+--> every heuristic delivers same value
+
+--> in barabasi dsatur outperforms greedy completely
+--> multi-greedy delivers the best k in the remaining instances

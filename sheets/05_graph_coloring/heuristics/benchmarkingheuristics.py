@@ -45,22 +45,23 @@ class Benchmarking_Heuristics:
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = False,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: {class_name}")
             )
 
             plt.savefig(f"benchmarking_heuristics_{class_name}.png", dpi=300)
+            plt.close()
 
     @classmethod
     def plot_all_instances(cls):
         data_rows = []
-        for i, (name, G) in enumerate(Instances.generate_test_instances()):
-            instance_id = name
-            for name, f in cls.heuristics.items():
+        for i, (instance_name, G) in enumerate(Instances.generate_test_instances()):
+            instance_id = instance_name
+            for heuristic_name, f in cls.heuristics.items():
                 coloring = f(G)
                 data_rows.append({
                     "instance": instance_id,
-                    "strategy": name,
+                    "strategy": heuristic_name,
                     "metric": Heuristics.num_colors(coloring)
                 })
         
@@ -75,13 +76,15 @@ class Benchmarking_Heuristics:
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = False,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: all instances")
             )
 
         plt.savefig(f"benchmarking_heuristics_all_instances.png", dpi=300)
+        plt.close()
 
 # generate the plots
 if __name__ == "__main__":
+    print("RUN BENCHMARKING OF HEURISTICS")
     Benchmarking_Heuristics.plot_all_instances()
     Benchmarking_Heuristics.plot_per_graph_class()
