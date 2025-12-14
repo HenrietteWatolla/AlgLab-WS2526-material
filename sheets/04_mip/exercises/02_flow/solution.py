@@ -102,7 +102,7 @@ class MiningRoutingSolver:
         logging.info("Solving model...")
 
         self._model.optimize()
-
+        
         solution_flows = []
         # collect all flow variables with positive value
         for (source, target), var in self.mine_flow.items():
