@@ -71,12 +71,14 @@ class Heuristics:
 
     # get saturation degree of vertices
     def saturation_degree(graph: nx.Graph, vertex: int, coloring: dict[int, int]) -> int:
-        saturation_degree = len({coloring[u] for u in graph.neighbors(vertex) if u in coloring})
-        return saturation_degree
+        return len({coloring[u]
+                    for u in graph.neighbors(vertex)
+                    if u in coloring}
+                )
 
     # DSATUR --> chooses node next to color dynamically, highest saturation degree first
     def dsatur_coloring(graph: nx.Graph) -> dict[int, int]:
-        coloring: dict[int, int] = {}
+        coloring = {}
         uncolored = set(graph.nodes())
 
         # precompute initial degrees
@@ -98,6 +100,7 @@ class Heuristics:
                 for u in graph.neighbors(v)
                 if u in coloring
             }
+
             coloring[v] = Heuristics.smallest_available_color(used_colors)
 
             uncolored.remove(v)

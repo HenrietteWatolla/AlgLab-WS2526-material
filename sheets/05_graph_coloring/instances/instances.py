@@ -1,7 +1,7 @@
 import networkx as nx
 
 class Instances:
-    
+    @staticmethod
     # store instances in list
     def generate_test_instances():
         instances = []
@@ -54,13 +54,15 @@ class Instances:
         # kneser graph (classic, n > k > 0) --> highly symmetric, challenging for greedy
         instances.append(("petersenGraph", nx.kneser_graph(5, 2)))
         instances.append(("kneser9-4", nx.kneser_graph(9, 4)))
-        instances.append(("kneser13-7", nx.kneser_graph(13, 7)))
-        instances.append(("kneser25-2", nx.kneser_graph(25, 2)))
-        instances.append(("kneser25-4", nx.kneser_graph(25, 4)))
-        instances.append(("kneser25-13", nx.kneser_graph(25, 13)))
-        instances.append(("kneser55-54", nx.kneser_graph(55, 54)))
-        instances.append(("kneser66-17", nx.kneser_graph(66, 17)))
-        instances.append(("kneser100-99", nx.kneser_graph(100, 99)))
-        #instances.append(("kneser150-113", nx.kneser_graph(150, 113)))
+        instances.append(("kneser10-3", nx.kneser_graph(10, 3)))
+        instances.append(("kneser10-5", nx.kneser_graph(10, 5)))
+        instances.append(("kneser13-4", nx.kneser_graph(13, 4)))
+        instances.append(("kneser13-5", nx.kneser_graph(13, 5)))
+        instances.append(("kneser14-4", nx.kneser_graph(14, 4)))
+        instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
+        instances.append(("kneser15-2", nx.kneser_graph(15, 2)))
+        instances.append(("kneser15-4", nx.kneser_graph(15, 4)))
+        # boss level
+        instances.append(("kneser15-5", nx.kneser_graph(15, 5)))
 
         return instances

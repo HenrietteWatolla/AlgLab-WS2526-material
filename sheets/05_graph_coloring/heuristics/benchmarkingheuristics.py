@@ -3,6 +3,8 @@ from instances.instances import Instances
 from plot_generation import Plots
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 data_rows = []
 heuristics = {
@@ -24,6 +26,8 @@ for i, (name, G) in enumerate(Instances.generate_test_instances()):
 
 df = pd.DataFrame(data_rows)
 
+print(df.head(20))
+
 Plots.plot_performance_profile(
     data=df,
     instance_column="instance",
@@ -34,3 +38,6 @@ Plots.plot_performance_profile(
     highlight_best=True,      # optional: bold the dominant heuristic
     title="Performance Profile of Graph Coloring Heuristics"
 )
+
+plt.savefig("benchmarking_heuristics_profile.png", dpi = 300)
+plt.close()
