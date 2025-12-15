@@ -112,5 +112,5 @@ print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 G = nx.kneser_graph(5, 2)
 print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 
-G = nx.kneser_graph(13, 2)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
+G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 13))

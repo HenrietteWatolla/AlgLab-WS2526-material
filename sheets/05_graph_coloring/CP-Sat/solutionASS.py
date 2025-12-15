@@ -96,5 +96,5 @@ print(CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, 10))
 G = nx.kneser_graph(5, 2)
 print(CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, 10))
 
-#G = nx.kneser_graph(13, 2)
-#print(CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, 10))
+G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
+print(CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, 13))

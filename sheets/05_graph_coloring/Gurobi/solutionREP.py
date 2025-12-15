@@ -6,7 +6,7 @@ from instances.instances import Instances
 from heuristics.heuristics import Heuristics
 
 class GurobiREP:
-    def solve_coloring_REP_gurobi(G: nx.Graph, time_limit = 600) -> int:
+    def solve_coloring_REP_gurobi(G: nx.Graph, time_limit = 60) -> int:
 
         vertices = sorted(G.nodes) # sorted to ensure that smallest index node is used as representant of class
         edges = list(G.edges)
@@ -110,7 +110,7 @@ print(GurobiREP.solve_coloring_REP_gurobi(G))
 #G = nx.kneser_graph(14, 4)
 #print(GurobiREP.solve_coloring_REP_gurobi(G, 8))
 G = nx.kneser_graph(13, 4)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 7))
+print(GurobiREP.solve_coloring_REP_gurobi(G))
 
 G = nx.kneser_graph(5, 2)
 print(GurobiREP.solve_coloring_REP_gurobi(G))
@@ -118,3 +118,6 @@ print(GurobiREP.solve_coloring_REP_gurobi(G))
 # need 90seconds
 #G = nx.kneser_graph(13, 2)
 #print(GurobiREP.solve_coloring_REP_gurobi(G))
+
+G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
+print(GurobiREP.solve_coloring_REP_gurobi(G))
