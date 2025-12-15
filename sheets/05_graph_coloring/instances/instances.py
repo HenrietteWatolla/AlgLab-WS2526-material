@@ -32,9 +32,9 @@ class Instances:
         instances.append(("erdos30-0.5-13", nx.erdos_renyi_graph(30, 0.5, seed = 13)))
         instances.append(("erdos30-0.5-33", nx.erdos_renyi_graph(30, 0.5, seed = 33)))
         instances.append(("erdos30-2-1", nx.erdos_renyi_graph(30, 2, seed = 1)))
-        instances.append(("erdos55-0.9-42", nx.erdos_renyi_graph(55, 0.9, seed = 42)))
-        instances.append(("erdos100-2-42", nx.erdos_renyi_graph(100, 2, seed = 42)))
-        instances.append(("erdos150-5-42", nx.erdos_renyi_graph(150, 5, seed = 42)))
+        #instances.append(("erdos55-0.9-42", nx.erdos_renyi_graph(55, 0.9, seed = 42)))
+        #instances.append(("erdos100-2-42", nx.erdos_renyi_graph(100, 2, seed = 42)))
+        #instances.append(("erdos150-5-42", nx.erdos_renyi_graph(150, 5, seed = 42)))
 
         # barabasi_albert_graph (random) --> sequentielly adding of nodes with degree m
         # --> nodes with high degree --> DSATUR much better
@@ -45,9 +45,9 @@ class Instances:
         instances.append(("barabasi100-10-13", nx.barabasi_albert_graph(100, 10, seed = 13)))
         instances.append(("barabasi100-10-20", nx.barabasi_albert_graph(100, 10, seed = 20)))
         instances.append(("barabasi100-10-42", nx.barabasi_albert_graph(100, 10, seed = 42)))
-        instances.append(("barabasi100-10-55", nx.barabasi_albert_graph(100, 10, seed = 55)))
-        instances.append(("barabasi100-25-55", nx.barabasi_albert_graph(100, 25, seed = 55)))
-        instances.append(("barabasi150-33-66", nx.barabasi_albert_graph(150, 33, seed = 66)))
+        #instances.append(("barabasi100-10-55", nx.barabasi_albert_graph(100, 10, seed = 55)))
+        #instances.append(("barabasi100-25-55", nx.barabasi_albert_graph(100, 25, seed = 55)))
+        #instances.append(("barabasi150-33-66", nx.barabasi_albert_graph(150, 33, seed = 66)))
 
         # kneser graph (classic, n > k > 0) --> highly symmetric, challenging for greedy
         instances.append(("petersenGraph", nx.kneser_graph(5, 2)))
@@ -59,9 +59,9 @@ class Instances:
         instances.append(("kneser14-4", nx.kneser_graph(14, 4)))
         instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
         instances.append(("kneser15-2", nx.kneser_graph(15, 2)))
-        instances.append(("kneser15-4", nx.kneser_graph(15, 4)))
+        #instances.append(("kneser15-4", nx.kneser_graph(15, 4)))
         # boss level
-        instances.append(("kneser15-5", nx.kneser_graph(15, 5)))
+        #instances.append(("kneser15-5", nx.kneser_graph(15, 5)))
 
         return instances
 
