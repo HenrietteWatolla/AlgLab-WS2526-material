@@ -73,8 +73,8 @@ class GurobiASS:
             "runtime": model.Runtime
         }
 
-        if model.Status == GRB.OPTIMAL:
-            coloring = {}
+        coloring = {}
+        if model.SolCount > 0:
             for node in vertices:
                 for color in available_colors:
                     if node_coloring[(node, color)].X > 0.5:
@@ -106,3 +106,11 @@ print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 # too difficult
 #G = nx.kneser_graph(14, 4)
 #print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
+#G = nx.kneser_graph(13, 4)
+#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
+
+G = nx.kneser_graph(5, 2)
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
+
+G = nx.kneser_graph(13, 2)
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))

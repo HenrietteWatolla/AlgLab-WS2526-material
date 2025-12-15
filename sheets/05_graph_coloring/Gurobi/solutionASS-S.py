@@ -5,8 +5,8 @@ from gurobipy import GRB
 from instances.instances import Instances
 from heuristics.heuristics import Heuristics
 
-class GurobiASS:
-    def solve_coloring_ASS_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+class GurobiASS_S:
+    def solve_coloring_ASS_S_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -47,10 +47,12 @@ class GurobiASS:
         # add ASS-S specific constraints
         # fix order of colors
         for color in available_colors:
-            if color != used_colors[0]:
+            if color != 0:
                 model.addConstr(used_colors[color] <= used_colors[color - 1])
 
-        # enforce that 
+        # enforce that used_color[c] == 1 iff at least one vertex is assigned color c
+        for color in available_colors:
+            model.addConstr(used_colors[color] <= gp.quicksum(node_coloring[node, color] for node in vertices))
 
         # obejctive function --> minimizing used colors
         model.setObjective(gp.quicksum(used_colors[color] for color in available_colors), GRB.MINIMIZE)
@@ -67,8 +69,8 @@ class GurobiASS:
             "runtime": model.Runtime
         }
 
-        if model.Status == GRB.OPTIMAL:
-            coloring = {}
+        coloring = {}
+        if model.SolCount > 0:
             for node in vertices:
                 for color in available_colors:
                     if node_coloring[(node, color)].X > 0.5:
@@ -82,3 +84,28 @@ class GurobiASS:
         print(solution)
 
         return solution["objective"]
+    
+G = nx.complete_graph(5)
+res = GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5)
+print(res)
+
+G = nx.path_graph(10)
+print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+
+G = nx.cycle_graph(5)
+print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5))
+
+G = nx.complete_bipartite_graph(5,5)
+print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+
+# too difficult
+#G = nx.kneser_graph(14, 4)
+#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
+#G = nx.kneser_graph(13, 4)
+#print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 7))
+
+G = nx.kneser_graph(5, 2)
+print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+
+G = nx.kneser_graph(13, 2)
+print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
