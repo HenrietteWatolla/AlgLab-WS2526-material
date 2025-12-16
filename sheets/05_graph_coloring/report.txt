@@ -12,7 +12,8 @@ gurobi	REP		modelling takes time
 cp-sat	ASS		0.5388				timeout feasible (10)
 cp-sat 	ASS-S		0.6103				timeout feasible (10)
 cp-sat 	REP		0.1847				31.9485 (10)
-cp-sat							timeout feasible (10)
+cp-sat	not equal					timeout feasible (10)
+cp-sat all different					timeout feasible (10)
 
 --> every solver returns node number = 8
 --> good sign that everyone returns the same :D
