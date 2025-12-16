@@ -9,13 +9,25 @@ class SAT:
         k = minimal_heuristic
         vertices = list(G.nodes)
         edges = list(G.edges)
-        available_colors = range(minimal_heuristic)
+
+        # measure solution time
+        init_time = time.time()
+        total_runtime = init_time
 
         # find the smallest number of colors iteratively,
         # start with the given heuristic solution and decrease as long as possible
 
         while k > 0:
+
+            if total_runtime - init_time > time_limit:
+                print("TIMEOUT")
+                break
+
+            start = time.time()
+
             solver = SATSolver("Minicard")
+
+            available_colors = range(k)
 
             # create variables
             # mapping of vertice-color pairs with variable indices
@@ -38,33 +50,29 @@ class SAT:
             for (u, v) in edges:
                 for color in available_colors:
                     solver.add_clause([- node_coloring[(u, color)], - node_coloring[(v, color)]])
-
-            # remove colors c used with c >= k
-            for v in vertices:
-                for color in range(k, minimal_heuristic):
-                    solver.add_clause([-node_coloring[(v, color)]])
             
-            # measure solution time
-            start = time.time()
             sol = solver.solve()
-            end = time.time()
-
-            runtime = end - start
 
             if sol:
 
                 # satisfiability with k colors --> extract solution
+
+                model = solver.get_model()
+                model_set = set(model)
+
                 solution = {
-                "objective": None,
-                "coloring": None,
-                "runtime": runtime
+                    "objective": None,
+                    "coloring": None,
+                    "runtime": (total_runtime - init_time)
                 }
 
                 coloring = {}
                 for node in vertices:
                     for color in available_colors:
-                        if node_coloring[(node, color)] > 0:
+                        var = node_coloring[(node, color)]
+                        if var in model_set:
                             coloring[node] = color
+                            break
 
                 solution["objective"] = k
                 solution["coloring"] = coloring
@@ -72,7 +80,18 @@ class SAT:
                 # try to use smaller k in the next iteration
                 k -= 1
 
+                end = time.time()
+                print(end - start)
+            
+                total_runtime += (end - start)
+
             else:
+
+                # prooving infeasibility of the current number of colors k is very difficult + needs a lot of time
+                end = time.time()
+                print(end - start)
+            
+                total_runtime += (end - start)
                 break
 
         print(solution["objective"], "\n")
@@ -103,5 +122,10 @@ print(SAT.solve_coloring_SAT(G, 10))
 G = nx.kneser_graph(5, 2)
 print(SAT.solve_coloring_SAT(G, 10))
 
+G = nx.erdos_renyi_graph(40, 0.5, seed = 42)
+print(SAT.solve_coloring_SAT(G, 11))
+
+# timeout --> we know k + 1 is a feasible solution
+# but no information about current iteration --> k can also be feasible
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(SAT.solve_coloring_SAT(G, 11))

@@ -99,5 +99,8 @@ print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 10))
 G = nx.kneser_graph(5, 2)
 print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 10))
 
+G = nx.erdos_renyi_graph(40, 0.5, seed = 42)
+print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 11))
+
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 13))
