@@ -75,7 +75,7 @@ class KCenterDecisionVariant:
         """Adds constraints to the SAT solver to ensure coverage within the given distance."""
         logging.info("Limiting to distance: %f", limit)
         # TODO: Implement me!
-
+ 
         self._infeasible = False
 
         # per vertex at least one chosen center has to be in given limit --> OR-constraint

@@ -2,11 +2,9 @@ import gurobipy as gp
 import networkx as nx
 from gurobipy import GRB
 
-from instances.instances import Instances
-from heuristics.heuristics import Heuristics
 
-class GurobiASS_S:
-    def solve_coloring_ASS_S_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+class GurobiASS:
+    def solve_coloring_ASS_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -16,16 +14,30 @@ class GurobiASS_S:
 
         model.Params.TimeLimit = time_limit
 
+        """
+        self.heuristics = {
+            "greedy": lambda G: Heuristics.greedy_coloring(G, Heuristics.input_order(G)),
+            "multi_greedy": lambda G: Heuristics.multi_start_greedy(G, runs = 50, seed = 42),
+            "dsatur": Heuristics.dsatur_coloring
+        }
+
+        # get instances --> one solving model per instance
+        for graph in Instances.generate_test_instances():
+            
+
+            # find best upper bound
+            self.best_upper_bound = min(Heuristics.num_colors(heuristic) for heuristic in self.heuristics.items())
+            print("INIT upper bound ", self.best_upper_bound)
+        """
+
         # create variables
         # node v colored in color c
+        
         node_coloring = {}
-
         # color used (1) or not (0)
         used_colors = {}
-
         for color in available_colors:
             used_colors[color] = model.addVar(vtype = GRB.BINARY, name = f"color_{color}")
-
             for node in vertices:
                 node_coloring[(node, color)] = model.addVar(vtype = GRB.BINARY, name = f"node_{node}_color{color}")
         
@@ -43,16 +55,6 @@ class GurobiASS_S:
         for v in vertices:
             for color in available_colors:
                 model.addConstr(node_coloring[(v, color)] <= used_colors[color])
-
-        # add ASS-S specific constraints
-        # fix order of colors
-        for color in available_colors:
-            if color != 0:
-                model.addConstr(used_colors[color] <= used_colors[color - 1])
-
-        # enforce that used_color[c] == 1 iff at least one vertex is assigned color c
-        for color in available_colors:
-            model.addConstr(used_colors[color] <= gp.quicksum(node_coloring[node, color] for node in vertices))
 
         # obejctive function --> minimizing used colors
         model.setObjective(gp.quicksum(used_colors[color] for color in available_colors), GRB.MINIMIZE)
@@ -84,28 +86,29 @@ class GurobiASS_S:
         print(solution)
 
         return solution["objective"]
-    
+
+
 G = nx.complete_graph(5)
-res = GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5)
+res = GurobiASS.solve_coloring_ASS_gurobi(G, 5)
 print(res)
 
 G = nx.path_graph(10)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 
 G = nx.cycle_graph(5)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5))
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 5))
 
 G = nx.complete_bipartite_graph(5,5)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 
 # too difficult
 #G = nx.kneser_graph(14, 4)
 #print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
 #G = nx.kneser_graph(13, 4)
-#print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 7))
+#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
 
 G = nx.kneser_graph(5, 2)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 13))
+print(GurobiASS.solve_coloring_ASS_gurobi(G, 13))
