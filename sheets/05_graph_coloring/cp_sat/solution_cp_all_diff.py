@@ -76,6 +76,7 @@ class CP_SAT_ALL_DIFF:
 
         return solution["objective"]
 
+"""
 # test on some instances
 G = nx.complete_graph(5)
 res = CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 5)
@@ -104,3 +105,4 @@ print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 11))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, 13))
+"""

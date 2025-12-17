@@ -83,6 +83,7 @@ class GurobiASS_S:
 
         return solution["objective"]
     
+"""
 G = nx.complete_graph(5)
 res = GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5)
 print(res)
@@ -107,3 +108,4 @@ print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 13))
+"""

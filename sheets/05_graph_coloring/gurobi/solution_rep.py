@@ -3,7 +3,7 @@ import networkx as nx
 from gurobipy import GRB
 
 class GurobiREP:
-    def solve_coloring_REP_gurobi(G: nx.Graph, minimal_heuristic: int | None time_limit = 60) -> int:
+    def solve_coloring_REP_gurobi(G: nx.Graph, minimal_heuristic: int | None, time_limit = 60) -> int:
 
         vertices = sorted(G.nodes) # sorted to ensure that smallest index node is used as representant of class
         edges = list(G.edges)
@@ -89,7 +89,7 @@ class GurobiREP:
 
         return solution["objective"]
 
-
+"""
 G = nx.complete_graph(5)
 res = GurobiREP.solve_coloring_REP_gurobi(G)
 print(res)
@@ -118,3 +118,4 @@ print(GurobiREP.solve_coloring_REP_gurobi(G))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(GurobiREP.solve_coloring_REP_gurobi(G))
+"""

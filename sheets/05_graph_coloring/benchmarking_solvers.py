@@ -21,20 +21,20 @@ import matplotlib.pyplot as plt
 
 class Benchmarking_Solvers:
 
-    all_instances = Instances.generate_test_instances()
+    all_instances = list(Instances.generate_test_instances())
 
     solvers = {
-        "Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub),
-        "Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub),
-        "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub),
+        "Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
+        "Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub, 60),
+        "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub, 60),
 
-        "CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub),
-        "CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub),
-        "CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub),
-        "CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub),
-        "CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub),
+        "CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub, 60),
+        "CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub, 60),
+        "CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub, 60),
+        "CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub, 60),
+        "CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub, 60),
 
-        "SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub),
+        #"SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub, 60),
     }
 
     @classmethod
@@ -48,7 +48,7 @@ class Benchmarking_Solvers:
                 for solver_name, solver_fn in cls.solvers.items():
                     ub = min(
                         Heuristics.num_colors(Heuristics.dsatur_coloring(G)),
-                        Heuristics.num_colors(Heuristics.greedy_coloring(G)),
+                        Heuristics.num_colors(Heuristics.greedy_coloring(G, Heuristics.input_order(G))),
                         Heuristics.num_colors(Heuristics.multi_start_greedy(G))
                     )
                     result = solver_fn(G, ub)
@@ -66,7 +66,7 @@ class Benchmarking_Solvers:
             Plots.plot_performance_profile(
                 data = df_class,
                 instance_column = "instance",
-                solver_column = "solver",
+                strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
@@ -85,7 +85,7 @@ class Benchmarking_Solvers:
             for solver_name, solver_fn in cls.solvers.items():
                 ub = min(
                     Heuristics.num_colors(Heuristics.dsatur_coloring(G)),
-                    Heuristics.num_colors(Heuristics.greedy_coloring(G)),
+                    Heuristics.num_colors(Heuristics.greedy_coloring(G, Heuristics.input_order(G))),
                     Heuristics.num_colors(Heuristics.multi_start_greedy(G))
                 )
                 result = solver_fn(G, ub)
@@ -95,14 +95,14 @@ class Benchmarking_Solvers:
                     "metric": result
                 })
         
-        df = pd.DataFrame(data_rows)
+        df_class = pd.DataFrame(data_rows)
 
-        print(df.head(40))
+        print(df_class.head(40))
 
         Plots.plot_performance_profile(
-                data = df,
+                data = df_class,
                 instance_column = "instance",
-                solver_column = "solver",
+                strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution

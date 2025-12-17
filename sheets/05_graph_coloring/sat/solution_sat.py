@@ -39,6 +39,7 @@ class SAT:
                 for node in vertices:
                     node_coloring[(node, color)] = var_counter
                     var_counter += 1
+                print("SAT COLORS")
         
             # add constraints
             # each vertex gets at least one color --> OR-constraint
@@ -98,7 +99,8 @@ class SAT:
         print(solution)
 
         return solution["objective"]
-    
+
+"""    
 # test on some instances
 G = nx.complete_graph(5)
 res = SAT.solve_coloring_SAT(G, 5)
@@ -129,3 +131,4 @@ print(SAT.solve_coloring_SAT(G, 11))
 # but no information about current iteration --> k can also be feasible
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(SAT.solve_coloring_SAT(G, 11))
+"""

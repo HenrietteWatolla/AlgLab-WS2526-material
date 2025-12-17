@@ -2,9 +2,8 @@ import gurobipy as gp
 import networkx as nx
 from gurobipy import GRB
 
-
 class GurobiASS:
-    def solve_coloring_ASS_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+    def solve_coloring_ASS_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60):
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -87,7 +86,7 @@ class GurobiASS:
 
         return solution["objective"]
 
-
+"""
 G = nx.complete_graph(5)
 res = GurobiASS.solve_coloring_ASS_gurobi(G, 5)
 print(res)
@@ -112,3 +111,4 @@ print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(GurobiASS.solve_coloring_ASS_gurobi(G, 13))
+"""

@@ -82,6 +82,7 @@ class CP_SAT_ASS_S:
 
         return solution["objective"]
 
+"""
 # test on some instances
 G = nx.complete_graph(5)
 res = CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 5)
@@ -107,3 +108,4 @@ print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 10))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 13))
+"""
