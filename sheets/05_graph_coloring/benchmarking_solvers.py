@@ -69,7 +69,7 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "relative",    # ratio to best-known solution
+                comparison = "absolute",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: {class_name}")
             )
@@ -105,7 +105,7 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "relative",    # ratio to best-known solution
+                comparison = "absolute",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: all instances")
             )
