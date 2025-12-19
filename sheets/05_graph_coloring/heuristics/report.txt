@@ -1,14 +1,22 @@
 One seperate performance profile for each of the instance classes:
-- complete graphs
-- bipartite graphs
-- cycle graphs
-- path graphs
+- trivial graphs
+- regular graphs
+- dense graphs
 - erdos renyi raphs
-- kneser graphs
 - barabasi albert graphs
+- kneser graphs
 
---> for complete, bipartite, cycle, path graphs the best solution k = number of nodes is already given through the heuristics
+--> for trivial graphs the best solution k = number of nodes is already given through the heuristics
 --> every heuristic delivers same value (performance profile remains empty)
 
---> in barabasi dsatur outperforms greedy completely
---> multi-greedy delivers the best k in the remaining instances
+--> in barabasi albert graphs dsatur outperforms greedy completely, in dense graphs it finds the best heuristic solution directly for all instances
+
+class				--> best heuristic for this class
+
+- regular graphs		--> multi-greedy
+- dense graphs			--> dsatur
+- erdos renyi raphs		--> dsatur
+- barabasi albert graphs	--> dsatur
+- kneser graphs			--> greedy
+
+--> considering all instances, dsatur performs best

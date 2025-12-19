@@ -36,26 +36,24 @@ class Instances:
             instances.append((f"regular_{number_of_nodes}_{degree}", nx.random_regular_graph(degree, number_of_nodes, seed = 42)))
         
         # sudoku graphs
-        for i in range(5):
-            grid_size = i + 1
-            instances.append((f"regular_sudoku_{grid_size}", nx.sudoku_graph([grid_size])))
+        instances.append((f"regular_sudoku_3", nx.sudoku_graph(3)))
 
         # dense graphs
         for i in range (10, 30):
             number_of_nodes = (i + 1) * 5
-            number_of_edges = number_of_nodes * (number_of_nodes - 2) / 2
+            number_of_edges = number_of_nodes * (number_of_nodes - 2) // 2
             instances.append((f"dense_{number_of_nodes}_{number_of_edges}",
                               nx.dense_gnm_random_graph(number_of_nodes, number_of_edges, seed = 42)))
         for i in range(20, 40):
             number_of_nodes = (i + 1) * 5
-            number_of_edges = number_of_nodes * (number_of_nodes - 3) / 2
+            number_of_edges = number_of_nodes * (number_of_nodes - 3) // 2
             instances.append((f"dense_{number_of_nodes}_{number_of_edges}",
                               nx.dense_gnm_random_graph(number_of_nodes, number_of_edges, seed = 42)))
         
         # greater instances
         for i in range(100, 110):
             number_of_nodes = (i + 1) * 4
-            number_of_edges = number_of_nodes * (number_of_nodes - 3) / 2
+            number_of_edges = number_of_nodes * (number_of_nodes - 3) // 2
             instances.append((f"dense_{number_of_nodes}_{number_of_edges}",
                               nx.dense_gnm_random_graph(number_of_nodes, number_of_edges, seed = 42)))
 
@@ -87,7 +85,7 @@ class Instances:
         instances.append(("dense_erdos55-0.97", nx.erdos_renyi_graph(55, 0.97, seed = 42)))
         instances.append(("dense_erdos55-0.98", nx.erdos_renyi_graph(55, 0.98, seed = 42)))
         instances.append(("dense_erdos55-0.99", nx.erdos_renyi_graph(55, 0.99, seed = 42)))
-        
+
         instances.append(("dense_erdos60-0.9", nx.erdos_renyi_graph(60, 0.9, seed = 42)))
         instances.append(("dense_erdos65-0.9", nx.erdos_renyi_graph(65, 0.9, seed = 42)))
         instances.append(("dense_erdos70-0.9", nx.erdos_renyi_graph(70, 0.9, seed = 42)))
@@ -161,8 +159,8 @@ class Instances:
             "trivial": [name for name, i in instances if "trivial" in name],
             "regular": [name for name, i in instances if "regular" in name],
             "dense": [name for name, i in instances if "dense" in name],
-            "erdos_renyi": [name for name, _ in instances if "erdos" in name],
-            "barabasi": [name for name, _ in instances if "barabasi" in name],
-            "kneser": [name for name, _ in instances if "kneser" in name or "petersenGraph" in name]
+            "erdos_renyi": [name for name, i in instances if "erdos" in name],
+            "barabasi": [name for name, i in instances if "barabasi" in name],
+            "kneser": [name for name, i in instances if "kneser" in name or "petersenGraph" in name]
         }
         return classes

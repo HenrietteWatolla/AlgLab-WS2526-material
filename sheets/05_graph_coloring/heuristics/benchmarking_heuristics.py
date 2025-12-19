@@ -11,7 +11,6 @@ class Benchmarking_Heuristics:
 
     heuristics = {
         "greedy": lambda G: Heuristics.greedy_coloring(G, Heuristics.input_order(G)),
-        #"degree_order": lambda G: Heuristics.greedy_coloring(G, Heuristics.highest_degree_order(G)),
         "multi_greedy": lambda G: Heuristics.multi_start_greedy(G, runs = 50, seed = 42),
         "dsatur": Heuristics.dsatur_coloring
     }
@@ -44,7 +43,7 @@ class Benchmarking_Heuristics:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "relative",    # ratio to best-known solution
+                comparison = "absolute",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: {class_name}")
             )
@@ -75,7 +74,7 @@ class Benchmarking_Heuristics:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "relative",    # ratio to best-known solution
+                comparison = "absolute",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: all instances")
             )
