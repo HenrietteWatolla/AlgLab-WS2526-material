@@ -15,12 +15,18 @@ class GurobiREP:
         # create variables
         # nodes v, w are colored with the same color (1) --> w is representant of v
         same_color = {}
+
+        # representative ones
+        for w in vertices:
+            same_color[(w, w)] = model.addVar(vtype = GRB.BINARY, name = f"same_color{w}_{w}")
+
+        # non-representative variables
         for v in vertices:
             for w in vertices:
                 # ordering to choose smallest possible representant
-                if w <= v and w not in G.neighbors(v):
+                if w < v and w not in G.neighbors(v):
                     same_color[(v, w)] = model.addVar(vtype = GRB.BINARY, name = f"same_color{v}_{w}")
-        
+
         # add constraints
         # each vertex must choose exactly one representative
         for v in vertices:
@@ -53,17 +59,22 @@ class GurobiREP:
         model.optimize()
 
         # extract solution
-
         solution = {
             "status": model.Status,
             "objective": None,
             "coloring": None,
+            "best_bound": None,
+            "gap": None,
             "runtime": model.Runtime
         }
-        
-        coloring = {}
 
         if model.SolCount > 0:
+
+            solution["objective"] = model.ObjVal
+            solution["best_bound"] = model.ObjBound
+            solution["gap"] = model.MIPGap
+
+            coloring = {}
 
             # get node classes
             representatives = [
@@ -81,13 +92,25 @@ class GurobiREP:
                         coloring[v] = rep_to_color[w]
                         break
 
-        solution["objective"] = sum(1 for v in vertices if same_color[(v, v)].X > 0.5)
-        solution["coloring"] = coloring
+            solution["objective"] = sum(1 for v in vertices if same_color[(v, v)].X > 0.5)
+            solution["coloring"] = coloring
 
-        print(solution["objective"], "\n")
-        print(solution)
+            print(solution["objective"], "\n")
+            print(solution)
 
-        return solution["objective"]
+            return solution["objective"]
+        
+        else:
+            # no feasible solution found within time limit --> return heuristic solution
+
+            solution["objective"] = minimal_heuristic
+            solution["best_bound"] = model.ObjBound
+            solution["gap"] = None
+
+            print(solution["objective"], "\n")
+            print(solution)
+
+            return solution["objective"]
 
 """
 G = nx.complete_graph(5)
@@ -119,3 +142,12 @@ print(GurobiREP.solve_coloring_REP_gurobi(G))
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(GurobiREP.solve_coloring_REP_gurobi(G))
 """
+
+G = nx.erdos_renyi_graph(30, 1, seed = 1)
+print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
+
+G = nx.barabasi_albert_graph(100, 10, seed = 42)
+print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
+
+G = nx.kneser_graph(15, 4)
+print(GurobiREP.solve_coloring_REP_gurobi(G, 10, 60))
