@@ -40,6 +40,7 @@ class CP_SAT_NOT_EQUAL:
         result = solver.Solve(model)
 
         solution = {
+            "status": None,
             "objective": None,
             "coloring": None,
             "LB": None,
@@ -54,6 +55,7 @@ class CP_SAT_NOT_EQUAL:
             for node in vertices:
                 coloring[node] = solver.Value(node_coloring[node])
 
+        solution["status"] = solver.StatusName()
         solution["objective"] = solver.Value(highest_color_index)
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()

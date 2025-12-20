@@ -55,6 +55,7 @@ class CP_SAT_REP:
         result = solver.Solve(model)
 
         solution = {
+            "status": None,
             "objective": None,
             "coloring": None,
             "LB": None,
@@ -81,7 +82,7 @@ class CP_SAT_REP:
                     if (v, w) in same_color and solver.Value(same_color[(v, w)]) == 1:
                         coloring[v] = rep_to_color[w]
                         break
-
+        solution["status"] = solver.StatusName()
         solution["objective"] = sum(1 for v in vertices if solver.Value(same_color[(v, v)]) == 1)
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()
@@ -91,7 +92,7 @@ class CP_SAT_REP:
 
         return solution["objective"]
 
-"""    
+"""
 # test on some instances
 G = nx.complete_graph(5)
 res = CP_SAT_REP.solve_coloring_REP_CP_SAT(G)

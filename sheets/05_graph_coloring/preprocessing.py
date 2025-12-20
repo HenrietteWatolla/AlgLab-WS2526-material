@@ -6,43 +6,60 @@ class DegreeBasedPreprocessor:
     This needs to be a class as it maintains state between the preprocessing and postprocessing steps.
     """
     def __init__(self, graph: nx.Graph):
-        self.graph = graph  # the original graph
+        self.original_graph = graph  # the original graph
 
         # find maximal clique in the graph and use this as lower bound
 
         self.lower_bound = nx.large_clique_size(graph)
+        self.stack = []  # store vertex with its neighbors at removal time
 
     def preprocess(self) -> nx.Graph:
         """
         Return a preprocessed graph.
         """
+        G = self.original_graph.copy()
 
-        # store the vertex with its neighbors at removal time
-        self.stack = []
+        changed = True
+        while changed:
+            changed = False
+            for v in list(G.nodes()):
+                if G.degree(v) <= self.lower_bound - 1:
+                    neighbors = list(G.neighbors(v))
+                    self.stack.append((v, neighbors))
+                    G.remove_node(v)
+                    changed = True
+                    break  # restart iteration after modification
 
-        # init --> initial node degrees and neighbors
-        for v, deg in self.graph.degree():
-            print(v, deg)
-            self.neighbors = list(self.graph.neighbors(v))
-
-        while True:
-            removable = None
-            for v in self.graph.nodes:
-                if self.graph.degree(v) <= self.lower_bound - 1:
-                    removable = v
-                    break
-
-            if removable is None:
-                break  # no more vertices can be removed
-
-            neighbors = list(self.graph.neighbors(removable))
-            self.stack.append((removable, neighbors))
-            self.graph.remove_node(removable)
-
+        self.reduced_graph = G
+        return G
 
     def postprocess(self, coloring: dict, lower_bound: int) -> tuple[dict, int]:
         """
         Convert a solution for the reduced graph back to the original graph.
         As we are also interested in the lower bound, also pass it through.
         """
-        pass
+
+        G = self.original_graph
+        coloring = coloring.copy()
+
+        # reinsert vertices in reverse removal order
+        while self.stack:
+            v, neighbors = self.stack.pop()
+
+            used_colors = {
+                coloring[u]
+                for u in neighbors
+                if u in coloring
+            }
+
+            # assign smallest available color
+            color = 0
+            while color in used_colors:
+                color += 1
+
+            coloring[v] = color
+
+        num_colors = max(coloring.values()) + 1 if coloring else 0
+        lower_bound = max(lower_bound, self.lower_bound)
+
+        return coloring, lower_bound

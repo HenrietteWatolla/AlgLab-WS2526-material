@@ -48,6 +48,7 @@ class CP_SAT_ASS:
         result = solver.Solve(model)
 
         solution = {
+            "status": None,
             "objective": None,
             "coloring": None,
             "LB": None,
@@ -65,7 +66,8 @@ class CP_SAT_ASS:
                     if solver.Value(node_coloring[node, color]) == 1:
                         coloring[node] = color
                         break
-
+        
+        solution["status"] = solver.StatusName()
         solution["objective"] = sum(1 for color in available_colors if solver.Value(used_colors[color]) == 1)
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()

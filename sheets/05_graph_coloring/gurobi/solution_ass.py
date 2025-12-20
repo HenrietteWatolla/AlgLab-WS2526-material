@@ -67,6 +67,8 @@ class GurobiASS:
             "status": model.Status,
             "objective": None,
             "coloring": None,
+            "LB": None,
+            "gap": None,
             "runtime": model.Runtime
         }
 
@@ -80,6 +82,7 @@ class GurobiASS:
 
         solution["objective"] = sum(1 for color in available_colors if used_colors[color].X > 0.5)
         solution["coloring"] = coloring
+        solution["gap"] = model.MIPGap
 
         print(solution["objective"], "\n")
         print(solution)
