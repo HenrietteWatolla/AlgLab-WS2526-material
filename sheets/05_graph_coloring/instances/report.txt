@@ -1,0 +1,11 @@
+Overview about instances
+
+total number 113 divided in following (not complete disjunctive) categories:
+
+trivial 6
+regular 15
+dense 26
+erdos_renyi 25
+barabasi 15
+kneser 20
+dimacs 17

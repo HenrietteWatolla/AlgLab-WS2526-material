@@ -304,10 +304,10 @@ class Instances:
         instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
 
         instances.append(("kneser15-2", nx.kneser_graph(15, 2)))
-        instances.append(("kneser15-4", nx.kneser_graph(15, 3)))
+        instances.append(("kneser15-3", nx.kneser_graph(15, 3)))
 
         # add dimacs instances
-        Instances.load_dimacs_instances()
+        instances.extend(Instances.load_dimacs_instances())
 
         return instances
 
@@ -339,11 +339,6 @@ class Instances:
         dimacs_dir = os.path.join(base_dir, "..", "dimacs")
 
         dimacs_files = [
-            # hardest core benchmark
-            "DSJC125.1.col", "DSJC125.5.col",
-            "DSJC250.1.col", "DSJC250.5.col",
-            "DSJC500.1.col", "DSJC500.5.col",
-            "DSJC1000.1.col", "DSJC1000.5.col",
 
             # mycielski (high chromatic, triangle-free)
             "myciel3.col", "myciel4.col", "myciel5.col",
@@ -388,4 +383,9 @@ class Instances:
 if __name__ == "__main__":
     print("RUN GETTING INSTANCES")
     instances = Instances.generate_test_instances()
-    print(instances)
+    print(len(instances))
+
+    for name, G in instances:
+        assert G.number_of_nodes() > 0, name
+    for cls, names in Instances.graph_classes().items():
+        print(cls, len(names))
