@@ -22,30 +22,41 @@ import matplotlib.pyplot as plt
 class Benchmarking_Solvers:
 
     @classmethod
-    def plot_per_graph_class(cls):
-        for class_name, names in Instances.graph_classes().items():
-            data_rows = []
+    def solve_all(self):
+        # compute solver results for all instances once and store them
+        data_rows = []
 
-            for instance_name, G in cls.all_instances:
-                if instance_name not in names:
-                    continue  # skip instances not in this class
-                for solver_name, solver_fn in cls.solvers.items():
-                    ub = min(
-                        Heuristics.num_colors(Heuristics.dsatur_coloring(G)),
-                        Heuristics.num_colors(Heuristics.greedy_coloring(G, Heuristics.input_order(G))),
-                        Heuristics.num_colors(Heuristics.multi_start_greedy(G))
-                    )
-                    result = solver_fn(G, ub)
-                    data_rows.append({
-                        "instance": instance_name,
-                        "strategy": solver_name,
-                        "metric": result
-                    })
+        # generate all instances only once
+        self.all_instances = Instances.generate_test_instances()
+        self.graph_classes = Instances.graph_classes()
 
-            df_class = pd.DataFrame(data_rows)
+        for instance_name, G in self.all_instances:
+            # compute upper bound once per instance
+            ub = min(
+                Heuristics.num_colors(Heuristics.dsatur_coloring(G)),
+                Heuristics.num_colors(Heuristics.greedy_coloring(G, Heuristics.input_order(G))),
+                Heuristics.num_colors(Heuristics.multi_start_greedy(G))
+            )
 
-            # test
-            print(df_class.head(20))
+            # run all solvers on the instance
+            for solver_name, solver_fn in self.solvers.items():
+                result = solver_fn(G, ub)
+                data_rows.append({
+                    "instance": instance_name,
+                    "strategy": solver_name,
+                    "metric": result
+                })
+
+        # store DataFrame for later plotting
+        self.df_results = pd.DataFrame(data_rows)
+
+    @classmethod
+    def plot_per_graph_class(self):
+        # plot performance profiles per graph class
+        for class_name, names in self.graph_classes.items():
+            df_class = self.df_results[self.df_results["instance"].isin(names)]
+            if df_class.empty:
+                continue
 
             Plots.plot_performance_profile(
                 data = df_class,
@@ -53,7 +64,7 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: {class_name}")
             )
@@ -62,34 +73,16 @@ class Benchmarking_Solvers:
             plt.close()
 
     @classmethod
-    def plot_all_instances(cls):
-        data_rows = []
-        for i, (instance_name, G) in enumerate(Instances.generate_test_instances()):
-
-            for solver_name, solver_fn in cls.solvers.items():
-                ub = min(
-                    Heuristics.num_colors(Heuristics.dsatur_coloring(G)),
-                    Heuristics.num_colors(Heuristics.greedy_coloring(G, Heuristics.input_order(G))),
-                    Heuristics.num_colors(Heuristics.multi_start_greedy(G))
-                )
-                result = solver_fn(G, ub)
-                data_rows.append({
-                    "instance": instance_name,
-                    "strategy": solver_name,
-                    "metric": result
-                })
-        
-        df_class = pd.DataFrame(data_rows)
-
-        print(df_class.head(40))
+    def plot_all_instances(self):
+        # plot performance profile for all instances together
 
         Plots.plot_performance_profile(
-                data = df_class,
+                data = self.df_results,
                 instance_column = "instance",
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: all instances")
             )
@@ -99,8 +92,6 @@ class Benchmarking_Solvers:
 
 # generate the plots
 if __name__ == "__main__":
-
-    all_instances = list(Instances.generate_test_instances())
 
     solvers = {
         "Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
