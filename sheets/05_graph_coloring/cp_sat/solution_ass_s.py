@@ -59,6 +59,7 @@ class CP_SAT_ASS_S:
         solution = {
             "objective": None,
             "coloring": None,
+            "LB": None,
             "runtime": solver.WallTime()
         }
 
@@ -76,6 +77,7 @@ class CP_SAT_ASS_S:
 
         solution["objective"] = sum(1 for color in available_colors if solver.Value(used_colors[color]) == 1)
         solution["coloring"] = coloring
+        solution["LB"] = solver.BestObjectiveBound()
 
         print(solution["objective"], "\n")
         print(solution)

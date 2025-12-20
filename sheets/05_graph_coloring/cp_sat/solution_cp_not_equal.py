@@ -42,6 +42,7 @@ class CP_SAT_NOT_EQUAL:
         solution = {
             "objective": None,
             "coloring": None,
+            "LB": None,
             "runtime": solver.WallTime()
         }
 
@@ -55,6 +56,7 @@ class CP_SAT_NOT_EQUAL:
 
         solution["objective"] = solver.Value(highest_color_index)
         solution["coloring"] = coloring
+        solution["LB"] = solver.BestObjectiveBound()
 
         print(solution["objective"], "\n")
         print(solution)

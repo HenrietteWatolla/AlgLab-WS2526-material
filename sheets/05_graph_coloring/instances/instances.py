@@ -200,7 +200,7 @@ class Instances:
 
         # sudoku graph
         instances.append((f"regular_sudoku_3", nx.sudoku_graph(3)))
-
+        """
         # dense graphs
 
         instances.append((f"dense_200-10000-42", nx.dense_gnm_random_graph(200, 10000, seed = 42)))
@@ -254,7 +254,9 @@ class Instances:
         instances.append(("dense_erdos65-0.9-41", nx.erdos_renyi_graph(65, 0.9, seed = 41)))
         instances.append(("dense_erdos70-0.9-42", nx.erdos_renyi_graph(70, 0.9, seed = 42)))
         instances.append(("dense_erdos75-0.9-53", nx.erdos_renyi_graph(75, 0.9, seed = 53)))
+        """
 
+        """
         # barabasi_albert_graph (random) --> sequentielly adding of nodes with degree m
         # barabasi_alber_graph(number of nodes, edges added per new node, seed)
         # --> nodes with high degree --> DSATUR much better
@@ -276,7 +278,8 @@ class Instances:
         instances.append(("barabasi250-7-15", nx.barabasi_albert_graph(250, 7, seed = 15)))
         instances.append(("barabasi250-33-39", nx.barabasi_albert_graph(250, 33, seed = 39)))
         instances.append(("barabasi300-100-42", nx.barabasi_albert_graph(300, 100, seed = 42)))
-        
+        """
+        """
         # kneser graph (classic, n > k > 0) --> highly symmetric, challenging for greedy
         # vertices = all subsets of n with exact k elements, edges = connections between disjoint subsets
         instances.append(("petersenGraph", nx.kneser_graph(5, 2)))
@@ -308,6 +311,7 @@ class Instances:
 
         # add dimacs instances
         instances.extend(Instances.load_dimacs_instances())
+        """
 
         return instances
 
@@ -372,14 +376,15 @@ class Instances:
         classes = {
             "trivial": [name for name, i in instances if "trivial" in name],
             "regular": [name for name, i in instances if "regular" in name],
-            "dense": [name for name, i in instances if "dense" in name],
-            "erdos_renyi": [name for name, i in instances if "erdos" in name],
-            "barabasi": [name for name, i in instances if "barabasi" in name],
-            "kneser": [name for name, i in instances if "kneser" in name or "petersenGraph" in name],
-            "dimacs": [name for name, _ in instances if name.startswith("DIMACS_")]
+            #"dense": [name for name, i in instances if "dense" in name],
+            #"erdos_renyi": [name for name, i in instances if "erdos" in name],
+            #"barabasi": [name for name, i in instances if "barabasi" in name],
+            #"kneser": [name for name, i in instances if "kneser" in name or "petersenGraph" in name],
+            #"dimacs": [name for name, _ in instances if name.startswith("DIMACS_")]
         }
         return classes
-    
+
+"""  
 if __name__ == "__main__":
     print("RUN GETTING INSTANCES")
     instances = Instances.generate_test_instances()
@@ -389,3 +394,4 @@ if __name__ == "__main__":
         assert G.number_of_nodes() > 0, name
     for cls, names in Instances.graph_classes().items():
         print(cls, len(names))
+"""

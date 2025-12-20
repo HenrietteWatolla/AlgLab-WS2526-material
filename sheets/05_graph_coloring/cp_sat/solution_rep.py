@@ -57,6 +57,7 @@ class CP_SAT_REP:
         solution = {
             "objective": None,
             "coloring": None,
+            "LB": None,
             "runtime": solver.WallTime()
         }
 
@@ -83,6 +84,7 @@ class CP_SAT_REP:
 
         solution["objective"] = sum(1 for v in vertices if solver.Value(same_color[(v, v)]) == 1)
         solution["coloring"] = coloring
+        solution["LB"] = solver.BestObjectiveBound()
 
         print(solution["objective"], "\n")
         print(solution)

@@ -29,6 +29,19 @@ class Benchmarking_Solvers:
         # generate all instances only once
         self.all_instances = Instances.generate_test_instances()
         self.graph_classes = Instances.graph_classes()
+        self.solvers = {
+            #"Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
+            #"Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub, 60),
+            "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub, 60),
+
+            #"CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub, 60),
+            #"CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub, 60),
+            "CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub, 60),
+            #"CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub, 60),
+            #"CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub, 60),
+
+            #"SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub, 60),
+        }
 
         for instance_name, G in self.all_instances:
             # compute upper bound once per instance
@@ -49,6 +62,8 @@ class Benchmarking_Solvers:
 
         # store DataFrame for later plotting
         self.df_results = pd.DataFrame(data_rows)
+
+        print(self.df_results.head(20))
 
     @classmethod
     def plot_per_graph_class(self):
@@ -92,22 +107,10 @@ class Benchmarking_Solvers:
 
 # generate the plots
 if __name__ == "__main__":
-
-    solvers = {
-        "Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
-        "Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub, 60),
-        "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub, 60),
-
-        "CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub, 60),
-        "CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub, 60),
-        "CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub, 60),
-        "CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub, 60),
-        "CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub, 60),
-
-        "SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub, 60),
-    }
     
     print("RUN BENCHMARKING OF SOLVERS")
+
+    Benchmarking_Solvers.solve_all()
     Benchmarking_Solvers.plot_per_graph_class()
     Benchmarking_Solvers.plot_all_instances()
 

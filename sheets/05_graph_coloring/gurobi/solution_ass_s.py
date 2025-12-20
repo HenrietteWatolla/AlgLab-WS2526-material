@@ -64,6 +64,7 @@ class GurobiASS_S:
             "status": model.Status,
             "objective": None,
             "coloring": None,
+            "LB": None,
             "runtime": model.Runtime
         }
 
@@ -77,6 +78,7 @@ class GurobiASS_S:
 
         solution["objective"] = sum(1 for color in available_colors if used_colors[color].X > 0.5)
         solution["coloring"] = coloring
+        solution["LB"] = model.ObjBound
 
         print(solution["objective"], "\n")
         print(solution)
