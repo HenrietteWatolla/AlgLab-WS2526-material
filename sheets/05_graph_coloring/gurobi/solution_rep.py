@@ -141,7 +141,6 @@ print(GurobiREP.solve_coloring_REP_gurobi(G))
 
 G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
 print(GurobiREP.solve_coloring_REP_gurobi(G))
-"""
 
 G = nx.erdos_renyi_graph(30, 1, seed = 1)
 print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
@@ -151,3 +150,4 @@ print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
 
 G = nx.kneser_graph(15, 4)
 print(GurobiREP.solve_coloring_REP_gurobi(G, 10, 60))
+"""

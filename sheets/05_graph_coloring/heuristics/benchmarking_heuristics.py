@@ -9,12 +9,6 @@ import matplotlib.pyplot as plt
 
 class Benchmarking_Heuristics:
 
-    heuristics = {
-        "greedy": lambda G: Heuristics.greedy_coloring(G, Heuristics.input_order(G)),
-        "multi_greedy": lambda G: Heuristics.multi_start_greedy(G, runs = 50, seed = 42),
-        "dsatur": Heuristics.dsatur_coloring
-    }
-
     all_instances = Instances.generate_test_instances()
 
     @classmethod
@@ -84,6 +78,13 @@ class Benchmarking_Heuristics:
 
 # generate the plots
 if __name__ == "__main__":
+
+    heuristics = {
+        "greedy": lambda G: Heuristics.greedy_coloring(G, Heuristics.input_order(G)),
+        "multi_greedy": lambda G: Heuristics.multi_start_greedy(G, runs = 50, seed = 42),
+        "dsatur": Heuristics.dsatur_coloring
+    }
+
     print("RUN BENCHMARKING OF HEURISTICS")
-    Benchmarking_Heuristics.plot_all_instances()
     Benchmarking_Heuristics.plot_per_graph_class()
+    Benchmarking_Heuristics.plot_all_instances()

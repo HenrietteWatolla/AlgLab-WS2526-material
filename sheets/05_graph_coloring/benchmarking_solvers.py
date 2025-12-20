@@ -21,22 +21,6 @@ import matplotlib.pyplot as plt
 
 class Benchmarking_Solvers:
 
-    all_instances = list(Instances.generate_test_instances())
-
-    solvers = {
-        #"Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
-        #"Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub, 60),
-        "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub, 60),
-
-        #"CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub, 60),
-        #"CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub, 60),
-        #"CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub, 60),
-        #"CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub, 60),
-        "CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub, 60),
-
-        #"SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub, 60),
-    }
-
     @classmethod
     def plot_per_graph_class(cls):
         for class_name, names in Instances.graph_classes().items():
@@ -115,6 +99,25 @@ class Benchmarking_Solvers:
 
 # generate the plots
 if __name__ == "__main__":
+
+    all_instances = list(Instances.generate_test_instances())
+
+    solvers = {
+        "Gurobi_ASS": lambda G, ub: GurobiASS.solve_coloring_ASS_gurobi(G, ub, 60),
+        "Gurobi_ASS_S": lambda G, ub: GurobiASS_S.solve_coloring_ASS_S_gurobi(G, ub, 60),
+        "Gurobi_REP": lambda G, ub: GurobiREP.solve_coloring_REP_gurobi(G, ub, 60),
+
+        "CP_ASS": lambda G, ub: CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, ub, 60),
+        "CP_ASS_S": lambda G, ub: CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, ub, 60),
+        "CP_REP": lambda G, ub: CP_SAT_REP.solve_coloring_REP_CP_SAT(G, ub, 60),
+        "CP_NEQ": lambda G, ub: CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, ub, 60),
+        "CP_ALLDIFF": lambda G, ub: CP_SAT_ALL_DIFF.solve_coloring_all_diff_CP_SAT(G, ub, 60),
+
+        "SAT": lambda G, ub: SAT.solve_coloring_SAT(G, ub, 60),
+    }
+    
     print("RUN BENCHMARKING OF SOLVERS")
-    Benchmarking_Solvers.plot_all_instances()
     Benchmarking_Solvers.plot_per_graph_class()
+    Benchmarking_Solvers.plot_all_instances()
+
+# try to do lower bound also directly
