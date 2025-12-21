@@ -2,7 +2,7 @@ import networkx as nx
 from ortools.sat.python.cp_model import FEASIBLE, OPTIMAL, CpModel, CpSolver
 
 class CP_SAT_REP:
-    def solve_coloring_REP_CP_SAT(G: nx.Graph, minimal_heuristic = int | None, time_limit = 60) -> int:
+    def solve_coloring_REP_CP_SAT(G: nx.Graph, minimal_heuristic = int | None, time_limit = 60):
 
         vertices = sorted(G.nodes) # sorted to ensure that smallest index node is used as representant of class
         edges = list(G.edges)
@@ -90,7 +90,7 @@ class CP_SAT_REP:
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
 
 """
 # test on some instances

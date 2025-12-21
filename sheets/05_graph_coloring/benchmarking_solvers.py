@@ -16,8 +16,6 @@ from sat.solution_sat import SAT
 
 from preprocessing import DegreeBasedPreprocessor
 
-import networkx as nx
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -92,27 +90,28 @@ class Benchmarking_Solvers:
                 Heuristics.num_colors(Heuristics.multi_start_greedy(G))
             )
 
-            clique_lb = nx.large_clique_size(G)
-
             # run all solvers on the instance
             for solver_name, solver_fn in active_solvers.items():
                 result = solver_fn(G, ub)
+                print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", result)
+                lower_bound = result["LB"]
+                best_solution = result["objective"]
+                
                 data_rows.append({
                     "instance": instance_name,
                     "strategy": solver_name,
-                    "UB": result["objective"],
-                    "LB": clique_lb,
-                    "runtime": result["runtime"]
+                    "objective": best_solution,
+                    "LB": lower_bound
                 })
 
         # store DataFrame for later plotting
         cls.df_results = pd.DataFrame(data_rows)
         print("DONE. Rows:", len(cls.df_results))
 
-        print(cls.df_results.head(20))
+        print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", cls.df_results.head(20))
 
     @classmethod
-    def plot_per_graph_class(cls):
+    def plot_per_graph_class_objective(cls):
         # plot performance profiles per graph class
         for class_name, names in cls.graph_classes.items():
             df_class = cls.df_results[cls.df_results["instance"].isin(names)]
@@ -123,32 +122,72 @@ class Benchmarking_Solvers:
                 data = df_class,
                 instance_column = "instance",
                 strategy_column = "strategy",
-                metric_column = "metric",
+                metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
-                title = (f"Performance Profile: {class_name}")
+                title = (f"Performance Profile: best solution found for {class_name}")
             )
 
-            plt.savefig(f"benchmarking_solvers_{class_name}.png", dpi=300)
+            plt.savefig(f"benchmarking_solvers_best_solution_found_{class_name}.png", dpi=300)
             plt.close()
 
     @classmethod
-    def plot_all_instances(cls):
+    def plot_all_instances_objective(cls):
         # plot performance profile for all instances together
 
         Plots.plot_performance_profile(
                 data = cls.df_results,
                 instance_column = "instance",
                 strategy_column = "strategy",
-                metric_column = "metric",
+                metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
-                title = (f"Performance Profile: all instances")
+                title = (f"Performance Profile: best solution found for all instances")
             )
 
-        plt.savefig(f"benchmarking_heuristics_all_instances.png", dpi=300)
+        plt.savefig(f"benchmarking_heuristics_best_solution_found_all_instances.png", dpi=300)
+        plt.close()
+
+    @classmethod
+    def plot_per_graph_class_lower_bound(cls):
+        # plot performance profiles per graph class
+        for class_name, names in cls.graph_classes.items():
+            df_class = cls.df_results[cls.df_results["instance"].isin(names)]
+            if df_class.empty:
+                continue
+
+            Plots.plot_performance_profile(
+                data = df_class,
+                instance_column = "instance",
+                strategy_column = "strategy",
+                metric_column = "LB",
+                direction = "max",          # smaller number of colors is better upper bound
+                comparison = "relative",    # ratio to best-known solution
+                highlight_best = True,      # bold dominant heuristic
+                title = (f"Performance Profile: lower bound for {class_name}")
+            )
+
+            plt.savefig(f"benchmarking_solvers_lower_bound_{class_name}.png", dpi=300)
+            plt.close()
+
+    @classmethod
+    def plot_all_instances_lower_bound(cls):
+        # plot performance profile for all instances together
+
+        Plots.plot_performance_profile(
+                data = cls.df_results,
+                instance_column = "instance",
+                strategy_column = "strategy",
+                metric_column = "LB",
+                direction = "max",          # smaller number of colors is better upper bound
+                comparison = "relative",    # ratio to best-known solution
+                highlight_best = True,      # bold dominant heuristic
+                title = (f"Performance Profile: lower bound for all instances")
+            )
+
+        plt.savefig(f"benchmarking_heuristics_lower_bound_all_instances.png", dpi=300)
         plt.close()
     
     # preprocessing = pipeline (solver remains untouched)
@@ -179,10 +218,16 @@ if __name__ == "__main__":
 
     # no preprocessing
     Benchmarking_Solvers.solve_all(preprocessing = False)
-    Benchmarking_Solvers.plot_per_graph_class()
-    Benchmarking_Solvers.plot_all_instances()
+    Benchmarking_Solvers.plot_per_graph_class_objective()
+    Benchmarking_Solvers.plot_all_instances_objective()
+    Benchmarking_Solvers.plot_per_graph_class_lower_bound()
+    Benchmarking_Solvers.plot_all_instances_lower_bound()
 
+    """
     # preprocessing
     Benchmarking_Solvers.solve_all(preprocessing = True)
-    Benchmarking_Solvers.plot_per_graph_class()
-    Benchmarking_Solvers.plot_all_instances()
+    Benchmarking_Solvers.plot_per_graph_class_objective()
+    Benchmarking_Solvers.plot_all_instances_objective()
+    Benchmarking_Solvers.plot_per_graph_class_lower_bound()
+    Benchmarking_Solvers.plot_all_instances_lower_bound()
+    """

@@ -79,15 +79,17 @@ class GurobiASS:
                     if node_coloring[(node, color)].X > 0.5:
                         coloring[node] = color
                         break
-
-        solution["objective"] = sum(1 for color in available_colors if used_colors[color].X > 0.5)
+        
+        print(used_colors[color] for color in available_colors)
+        solution["objective"] = model.ObjVal
         solution["coloring"] = coloring
+        solution["LB"] = model.ObjBound
         solution["gap"] = model.MIPGap
 
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
 
 """
 G = nx.complete_graph(5)

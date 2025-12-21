@@ -4,7 +4,7 @@ from gurobipy import GRB
 
 
 class GurobiASS_S:
-    def solve_coloring_ASS_S_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+    def solve_coloring_ASS_S_gurobi(G: nx.Graph, minimal_heuristic: int, time_limit = 60):
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -77,7 +77,7 @@ class GurobiASS_S:
                         coloring[node] = color
                         break
 
-        solution["objective"] = sum(1 for color in available_colors if used_colors[color].X > 0.5)
+        solution["objective"] = model.ObjVal
         solution["coloring"] = coloring
         solution["LB"] = model.ObjBound
         solution["gap"] = model.MIPGap
@@ -85,7 +85,7 @@ class GurobiASS_S:
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
     
 """
 G = nx.complete_graph(5)

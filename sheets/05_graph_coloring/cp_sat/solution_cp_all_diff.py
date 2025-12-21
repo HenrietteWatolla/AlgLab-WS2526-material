@@ -2,7 +2,7 @@ import networkx as nx
 from ortools.sat.python.cp_model import FEASIBLE, OPTIMAL, CpModel, CpSolver
 
 class CP_SAT_ALL_DIFF:
-    def solve_coloring_all_diff_CP_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+    def solve_coloring_all_diff_CP_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60):
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -78,7 +78,7 @@ class CP_SAT_ALL_DIFF:
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
 
 """
 # test on some instances

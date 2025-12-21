@@ -1,4 +1,5 @@
 import networkx as nx
+from networkx.algorithms.approximation.clique import large_clique_size
 from pysat.solvers import Solver as SATSolver
 
 import time
@@ -45,11 +46,10 @@ class SAT:
             sol_dict["node_coloring"] = node_coloring
             sol_dict["available_colors"] = list(available_colors)
 
-    def solve_coloring_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+    def solve_coloring_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60):
 
         # measure solution time and interrupt after 60s
         init_time = time.time()
-        total_runtime = init_time
 
         k = minimal_heuristic
 
@@ -106,6 +106,7 @@ class SAT:
                 solution["objective"] = k
                 solution["coloring"] = coloring
                 solution["runtime"] = time.time() - init_time
+                solution["LB"] = large_clique_size(G)
 
                 # try to use smaller k in the next iteration
                 k -= 1
@@ -117,7 +118,7 @@ class SAT:
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
 
 """
 if __name__ == "__main__":

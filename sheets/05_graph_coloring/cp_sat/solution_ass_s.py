@@ -2,7 +2,7 @@ import networkx as nx
 from ortools.sat.python.cp_model import FEASIBLE, OPTIMAL, CpModel, CpSolver
 
 class CP_SAT_ASS_S:
-    def solve_coloring_ASS_S_CP_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60) -> int:
+    def solve_coloring_ASS_S_CP_SAT(G: nx.Graph, minimal_heuristic: int, time_limit = 60):
 
         vertices = list(G.nodes)
         edges = list(G.edges)
@@ -84,7 +84,7 @@ class CP_SAT_ASS_S:
         print(solution["objective"], "\n")
         print(solution)
 
-        return solution["objective"]
+        return solution
 
 """
 # test on some instances
