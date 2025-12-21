@@ -10,13 +10,13 @@ class CP_SAT_ALL_DIFF:
 
         # use for AllDiff Constraint
         # filter becaus the number of cliques can be exponential
-        MAX_USED_CLIQUES = 10
-        MIN_SIZE = 5
+        max_used_cliques = len(vertices) // 20
+        MIN_SIZE = 7
 
         cliques = [
             c for c in nx.find_cliques(G)
             if len(c) >= MIN_SIZE
-        ][:MAX_USED_CLIQUES]
+        ][:max_used_cliques]
 
 
         solver = CpSolver()

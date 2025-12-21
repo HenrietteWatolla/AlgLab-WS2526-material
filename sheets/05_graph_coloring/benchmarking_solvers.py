@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 
 class Benchmarking_Solvers:
 
+    def_results = None
+
     @classmethod
     def solve_all(cls, preprocessing = False):
         # compute solver results for all instances once and store them
@@ -82,6 +84,8 @@ class Benchmarking_Solvers:
         else:
             active_solvers = cls.solvers
 
+        instance_counter = 0
+
         for instance_name, G in cls.all_instances:
             # compute upper bound once per instance
             ub = min(
@@ -90,10 +94,14 @@ class Benchmarking_Solvers:
                 Heuristics.num_colors(Heuristics.multi_start_greedy(G))
             )
 
+            instance_counter += 1
+
             # run all solvers on the instance
             for solver_name, solver_fn in active_solvers.items():
                 result = solver_fn(G, ub)
-                print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", result)
+
+                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ", instance_counter, solver_name)
+
                 lower_bound = result["LB"]
                 best_solution = result["objective"]
                 
@@ -105,7 +113,7 @@ class Benchmarking_Solvers:
                 })
 
         # store DataFrame for later plotting
-        cls.df_results = pd.DataFrame(data_rows)
+        Benchmarking_Solvers.df_results = pd.DataFrame(data_rows)
         print("DONE. Rows:", len(cls.df_results))
 
         print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", cls.df_results.head(20))
@@ -125,7 +133,7 @@ class Benchmarking_Solvers:
                 metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = True,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: best solution found for {class_name}")
             )
 
@@ -136,18 +144,20 @@ class Benchmarking_Solvers:
     def plot_all_instances_objective(cls):
         # plot performance profile for all instances together
 
+        df_class = cls.df_results
+                                  
         Plots.plot_performance_profile(
-                data = cls.df_results,
+                data = df_class,
                 instance_column = "instance",
                 strategy_column = "strategy",
                 metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = True,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: best solution found for all instances")
             )
 
-        plt.savefig(f"benchmarking_heuristics_best_solution_found_all_instances.png", dpi=300)
+        plt.savefig(f"benchmarking_solvers_best_solution_found_all_instances.png", dpi=300)
         plt.close()
 
     @classmethod
@@ -163,9 +173,9 @@ class Benchmarking_Solvers:
                 instance_column = "instance",
                 strategy_column = "strategy",
                 metric_column = "LB",
-                direction = "max",          # smaller number of colors is better upper bound
+                direction = "max",          # greater number of colors is better lower bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = True,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: lower bound for {class_name}")
             )
 
@@ -176,18 +186,20 @@ class Benchmarking_Solvers:
     def plot_all_instances_lower_bound(cls):
         # plot performance profile for all instances together
 
+        df_class = cls.df_results
+        
         Plots.plot_performance_profile(
-                data = cls.df_results,
+                data = df_class,
                 instance_column = "instance",
                 strategy_column = "strategy",
                 metric_column = "LB",
-                direction = "max",          # smaller number of colors is better upper bound
+                direction = "max",          # greater number of colors is better lower bound
                 comparison = "relative",    # ratio to best-known solution
-                highlight_best = True,      # bold dominant heuristic
+                highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: lower bound for all instances")
             )
 
-        plt.savefig(f"benchmarking_heuristics_lower_bound_all_instances.png", dpi=300)
+        plt.savefig(f"benchmarking_solvers_lower_bound_all_instances.png", dpi=300)
         plt.close()
     
     # preprocessing = pipeline (solver remains untouched)
