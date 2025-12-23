@@ -64,7 +64,7 @@ class GurobiREP:
             "objective": None,
             "coloring": None,
             "LB": None,
-            "gap": None,
+            #"gap": None,
             "runtime": model.Runtime
         }
 
@@ -72,7 +72,7 @@ class GurobiREP:
 
             solution["objective"] = model.ObjVal
             solution["LB"] = model.ObjBound
-            solution["gap"] = model.MIPGap
+            #solution["gap"] = model.MIPGap
 
             coloring = {}
 
@@ -150,4 +150,18 @@ print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
 
 G = nx.kneser_graph(15, 4)
 print(GurobiREP.solve_coloring_REP_gurobi(G, 10, 60))
+"""
+
+"""
+G = nx.kneser_graph(14, 4)
+print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
+
+G = nx.kneser_graph(14, 5)
+print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
+
+G = nx.kneser_graph(15, 2)
+print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
+
+G = nx.kneser_graph(15, 3)
+print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
 """

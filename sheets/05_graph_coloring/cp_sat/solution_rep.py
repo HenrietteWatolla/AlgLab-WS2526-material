@@ -82,6 +82,7 @@ class CP_SAT_REP:
                     if (v, w) in same_color and solver.Value(same_color[(v, w)]) == 1:
                         coloring[v] = rep_to_color[w]
                         break
+
         solution["status"] = solver.StatusName()
         solution["objective"] = sum(1 for v in vertices if solver.Value(same_color[(v, v)]) == 1)
         solution["coloring"] = coloring
@@ -91,6 +92,15 @@ class CP_SAT_REP:
         print(solution)
 
         return solution
+
+#G = nx.kneser_graph(5, 2)
+#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
+
+#G = nx.kneser_graph(13, 5)
+#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
+
+#G = nx.kneser_graph(14, 4)
+#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
 
 """
 # test on some instances

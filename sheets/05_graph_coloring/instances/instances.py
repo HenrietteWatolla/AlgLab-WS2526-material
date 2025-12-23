@@ -162,7 +162,7 @@ class Instances:
     # store instances in list
     def generate_test_instances():
         instances = []
-
+        
         # trivial instances
         # complete graphs --> number of vertices = minimal number of colors
         instances.append(("trivial_K23", nx.complete_graph(23)))
@@ -183,7 +183,6 @@ class Instances:
 
         instances.append((f"regular_20-100-42", nx.random_regular_graph(20, 100, seed = 42)))
         instances.append((f"regular_20-150-30", nx.random_regular_graph(20, 150, seed = 30)))
-        
         instances.append((f"regular_100-200-15", nx.random_regular_graph(100, 200, seed = 15)))
         instances.append((f"regular_110-210-20", nx.random_regular_graph(110, 210, seed = 20)))
         instances.append((f"regular_110-220-17", nx.random_regular_graph(110, 220, seed = 17)))
@@ -299,8 +298,9 @@ class Instances:
         instances.append(("kneser10-7", nx.kneser_graph(10, 7)))
 
         instances.append(("kneser13-4", nx.kneser_graph(13, 4)))
-        instances.append(("kneser13-5", nx.kneser_graph(13, 5)))
 
+        # too difficult --> problems with solving for CP_REP, not used for benchmarking solvers
+        instances.append(("kneser13-5", nx.kneser_graph(13, 5)))
         instances.append(("kneser14-4", nx.kneser_graph(14, 4)))
         instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
 

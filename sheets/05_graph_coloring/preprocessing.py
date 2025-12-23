@@ -1,4 +1,5 @@
 import networkx as nx
+from networkx.algorithms.approximation import large_clique_size
 
 class DegreeBasedPreprocessor:
     """
@@ -10,7 +11,7 @@ class DegreeBasedPreprocessor:
 
         # find maximal clique in the graph and use this as lower bound
 
-        self.lower_bound = nx.large_clique_size(graph)
+        self.lower_bound = large_clique_size(graph)
         self.stack = []  # store vertex with its neighbors at removal time
 
     def preprocess(self) -> nx.Graph:
@@ -23,6 +24,8 @@ class DegreeBasedPreprocessor:
         while changed:
             changed = False
             for v in list(G.nodes()):
+                
+                # find vertices with low degree and delete them
                 if G.degree(v) <= self.lower_bound - 1:
                     neighbors = list(G.neighbors(v))
                     self.stack.append((v, neighbors))
@@ -33,13 +36,13 @@ class DegreeBasedPreprocessor:
         self.reduced_graph = G
         return G
 
-    def postprocess(self, coloring: dict, lower_bound: int) -> tuple[dict, int]:
+    def postprocess(self, coloring: dict, lower_bound: int) -> tuple[dict, int, int]:
         """
         Convert a solution for the reduced graph back to the original graph.
         As we are also interested in the lower bound, also pass it through.
         """
 
-        G = self.original_graph
+        #G = self.original_graph
         coloring = coloring.copy()
 
         # reinsert vertices in reverse removal order
@@ -62,4 +65,4 @@ class DegreeBasedPreprocessor:
         num_colors = max(coloring.values()) + 1 if coloring else 0
         lower_bound = max(lower_bound, self.lower_bound)
 
-        return coloring, lower_bound
+        return coloring, num_colors, lower_bound
