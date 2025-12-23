@@ -51,7 +51,7 @@ class DegreeBasedPreprocessor:
 
             used_colors = {
                 coloring[u]
-                for u in neighbors
+                for u in self.original_graph.neighbors(v) # work on original graph to realize the current drawing
                 if u in coloring
             }
 
@@ -62,7 +62,9 @@ class DegreeBasedPreprocessor:
 
             coloring[v] = color
 
+        # number of used colors
         num_colors = max(coloring.values()) + 1 if coloring else 0
+
         lower_bound = max(lower_bound, self.lower_bound)
 
         return coloring, num_colors, lower_bound

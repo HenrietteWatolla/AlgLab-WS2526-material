@@ -240,6 +240,8 @@ class Benchmarking_Solvers:
     # preprocessing = pipeline (solver remains untouched)
     def solve_with_preprocessing(solver_fn):
         def wrapped_solver(G, ub):
+
+            # preprocess the graph
             pre = DegreeBasedPreprocessor(G.copy())
             G_reduced = pre.preprocess()
 
@@ -253,7 +255,9 @@ class Benchmarking_Solvers:
             )
 
             result["coloring"] = coloring
-            result["best_bound"] = lb
+            result["objective"] = ub
+            result["LB"] = lb
+            
             return result
 
         return wrapped_solver
