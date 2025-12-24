@@ -10,7 +10,6 @@ class DegreeBasedPreprocessor:
         self.original_graph = graph  # the original graph
 
         # find maximal clique in the graph and use this as lower bound
-
         self.lower_bound = large_clique_size(graph)
         self.stack = []  # store vertex with its neighbors at removal time
 
@@ -42,7 +41,6 @@ class DegreeBasedPreprocessor:
         As we are also interested in the lower bound, also pass it through.
         """
 
-        #G = self.original_graph
         coloring = coloring.copy()
 
         # reinsert vertices in reverse removal order

@@ -1,0 +1,85 @@
+In general:
+In some plots a discrepancy between absolute and relative benchmark profiles exist. The two metrics capture different aspects of solver performance: In absolute measures solvers are best that are consistentely good across many cases. Relative comparison considers how close the solvers are to the best known solution on each instance.
+
+Which models are strongest in terms of finding good solutions?
+
+Overview:		
+instance class		absolute best		relative best
+- all instances		CP_ASS			CP_ALLDIFF
+- barabasi albert	CP_ALLDIFF		CP_ALLDIFF
+- dense			CP_REP			CP_REP
+- dimacs		CP_ASS(_S)		CP_ASS(_S)
+- erdos renyi		CP_ASS			CP_ASS
+- kneser		CP_REP			CP_REP
+- regular		CP_ASS			CP_ASS_S
+
+- Having all instances in mind, CP_ALLDIFF performs best in terms of finding good solutions compared to the others.
+
+- Considering the different graph classes, other solvers are most effective:
+- For barabasi albert graphs CP ALLDIFF is the best.
+- Solving the graph coloring problem on dense graphs seems to be most effective with CP_REP, whereas Gurobi_ASS_S finds the best solution only in ca. 60% of the instances.
+- For the dimacs instances, CP_ASS and CP_ASS_S dominate. They found for all dimacs instances the best known solution compared to the other solvers.
+- For erdos renyi graphs CP_ASS is most effective, whereas for kneser graphs CP_REP is best.
+- Looking to regular graphs, the largest differences between the solvers' results appear. CP_ASS_S outperforms the other solvers clearly (relative). At the same time Gurobi_REP performs worst and found only for 20% of the instances the best known solution, even with 75% gap allowed.
+- The plots for trivial instances remain empty because all models find the optimal solution within time.
+
+
+Which are most effective at proving lower bounds?
+
+Overview:
+instance class		absolute best		relative best
+- all instances		Gurobi_ASS		CP_ALLDIFF
+- barabasi albert	Gurobi_ASS		CP_ALLDIFF
+- dense			SAT			CP_ALLDIFF
+- dimacs		CP_ASS_S		CP_ALLDIFF
+- erdos renyi		CP_REP			CP_ALLDIFF
+- kneser		CP_ASS			CP_ALLDIFF
+- regular		Gurobi_ASS		CP_ALLDIFF
+- trivial		all\SAT			all\SAT
+
+Interesting observations:
+- Considering all instances, Gurobi_ASS performs best in absolute, CP_ALLDIFF in relative measure in proving lower bounds, whereas Gurobi_REP performs worst in absolute measure.
+- Interesting is that SAT finds the best lower bound in absolute measure for dense graphs. This is based on the fact that all vertices have the same degree and therefore the largest clique used as lower bound is simple, but effective.
+- The plots for trivial instances remain not empty. SAT returns the largest clique as lower bound. This is only effective for ca. 80% of the instances. If the gap is allowed to be 50%, SAT finds the best found lower bound for 100% of the instances.
+
+Takeaway:
+- Gurobi is more effective in proving optimality of solutions, but CP-SAT finds better feasible solutions within the time limit of 60s.
+
+
+Effect of preprocessing:
+
+Which models are strongest in terms of finding good solutions?
+
+Overview:		
+instance class		absolute best		relative best
+- all instances		Gurobi_ASS_S		CP_ASS_S
+- barabasi albert	Gurobi_ASS_S		CP_ASS
+- dense			Gurobi_ASS_S		CP_ASS_S
+- dimacs		CP_ASS_S		CP_ASS_S
+- erdos renyi		Gurobi_ASS_S		CP_ASS
+- kneser		CP_REP			CP_ASS
+- regular		Gurobi_ASS_S		CP_ASS_S
+- trivial		CP_ASS			CP_ASS
+
+Interesting observations:
+- For dense graphs exist no clear best performer in relative measure. Each model gets the best known solution only in maximal 60% of the instances. 
+- On dimacs instances CP_ASS_S delivers in 100% of the instances the best known solution (relative and absolute).
+- Considering the data, symmetry breaking gets more effective on preprocessed graphs.
+
+
+Which are most effective at proving lower bounds?
+
+Overview:
+instance class		absolute best		relative best
+- all instances		CP_REP			CP_ASS
+- barabasi albert	CP_REP			CP_REP
+- dense			CP_REP			CP_ASS
+- dimacs		CP_REP			CP_REP
+- erdos renyi		CP_REP			CP_REP
+- kneser		CP_ASS			CP_ASS
+- regular		Gurobi_ASS_S		CP_NEQ
+- trivial		all\SAT			all\SAT
+
+Interesting observations:
+- CP_REP gets very effective to find good lower bounds in absolute measure.
+- Whereas CP_ALLDIFF was most effective to find good lower bounds on not preprocessed graphs, the other models implemented in CP_SAT get more effective on preprocessed graphs.
