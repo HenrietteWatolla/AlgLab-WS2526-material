@@ -136,6 +136,8 @@ class Benchmarking_Solvers:
                 # write row immediately to CSV if memory runs out of space and interrupts solving process
                 df_row = pd.DataFrame([row])
 
+                print(row)
+
                 df_row.to_csv(
                     Benchmarking_Solvers.output_file,
                     mode = "a", # append mode
@@ -167,12 +169,12 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: best solution found for {class_name} with preprocessing")
             )
 
-            plt.savefig(f"benchmarking_solvers_best_solution_found_{class_name}_pre_absolute.png", dpi=300)
+            plt.savefig(f"benchmarking_solvers_best_solution_found_{class_name}_pre_relative.png", dpi=300)
             plt.close()
 
     @classmethod
@@ -187,12 +189,12 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "objective",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: best solution found for all instances with preprocessing")
             )
 
-        plt.savefig(f"benchmarking_solvers_best_solution_found_all_instances_pre_absolute.png", dpi=300)
+        plt.savefig(f"benchmarking_solvers_best_solution_found_all_instances_pre_relative.png", dpi=300)
         plt.close()
 
     @classmethod
@@ -209,12 +211,12 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "LB",
                 direction = "max",          # greater number of colors is better lower bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: lower bound for {class_name} with preprocessing")
             )
 
-            plt.savefig(f"benchmarking_solvers_lower_bound_{class_name}_pre_absolute.png", dpi=300)
+            plt.savefig(f"benchmarking_solvers_lower_bound_{class_name}_pre_relative.png", dpi=300)
             plt.close()
 
     @classmethod
@@ -229,12 +231,12 @@ class Benchmarking_Solvers:
                 strategy_column = "strategy",
                 metric_column = "LB",
                 direction = "max",          # greater number of colors is better lower bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant solver
                 title = (f"Performance Profile: lower bound for all instances with preprocessing")
             )
 
-        plt.savefig(f"benchmarking_solvers_lower_bound_all_instances_pre_absolute.png", dpi=300)
+        plt.savefig(f"benchmarking_solvers_lower_bound_all_instances_pre_relative.png", dpi=300)
         plt.close()
     
     # preprocessing = pipeline (solver remains untouched)
@@ -257,7 +259,7 @@ class Benchmarking_Solvers:
             result["coloring"] = coloring
             result["objective"] = ub
             result["LB"] = lb
-            
+
             return result
 
         return wrapped_solver

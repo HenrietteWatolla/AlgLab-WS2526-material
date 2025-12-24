@@ -300,9 +300,9 @@ class Instances:
         instances.append(("kneser13-4", nx.kneser_graph(13, 4)))
 
         # too difficult --> problems with solving for CP_REP, not used for benchmarking solvers
-        instances.append(("kneser13-5", nx.kneser_graph(13, 5)))
-        instances.append(("kneser14-4", nx.kneser_graph(14, 4)))
-        instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
+        #instances.append(("kneser13-5", nx.kneser_graph(13, 5)))
+        #instances.append(("kneser14-4", nx.kneser_graph(14, 4)))
+        #instances.append(("kneser14-5", nx.kneser_graph(14, 5)))
 
         instances.append(("kneser15-2", nx.kneser_graph(15, 2)))
         instances.append(("kneser15-3", nx.kneser_graph(15, 3)))
