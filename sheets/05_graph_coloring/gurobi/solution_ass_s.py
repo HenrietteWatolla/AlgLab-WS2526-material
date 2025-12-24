@@ -52,7 +52,7 @@ class GurobiASS_S:
         for color in available_colors:
             model.addConstr(used_colors[color] <= gp.quicksum(node_coloring[node, color] for node in vertices))
 
-        # obejctive function --> minimizing used colors
+        # objective function --> minimizing used colors
         model.setObjective(gp.quicksum(used_colors[color] for color in available_colors), GRB.MINIMIZE)
 
         # solve the model
@@ -82,34 +82,6 @@ class GurobiASS_S:
         solution["LB"] = model.ObjBound
         solution["gap"] = model.MIPGap
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-    
-"""
-G = nx.complete_graph(5)
-res = GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5)
-print(res)
-
-G = nx.path_graph(10)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
-
-G = nx.cycle_graph(5)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 5))
-
-G = nx.complete_bipartite_graph(5,5)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-#G = nx.kneser_graph(13, 4)
-#print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 7))
-
-G = nx.kneser_graph(5, 2)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 10))
-
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(GurobiASS_S.solve_coloring_ASS_S_gurobi(G, 13))
-"""

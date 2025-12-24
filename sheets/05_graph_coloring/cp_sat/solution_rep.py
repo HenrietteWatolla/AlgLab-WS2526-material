@@ -41,13 +41,13 @@ class CP_SAT_REP:
 
         for (u, v) in edges:
             for w in vertices:
-                # w must be a valid representative for both u and v
+                # w can only be a valid representative for wether u or v
                 if (((u, w) in same_color) and ((v, w) in same_color)):
                     model.Add(
                         same_color[(u, w)] + same_color[(v, w)] <= same_color[(w, w)]
                     )
 
-        # obejctive function --> minimizing used colors
+        # objective function --> minimizing used colors
         # this is equal to minimize nodes that are representatives of themselves
         model.Minimize(sum(same_color[(v, v)] for v in vertices))
 
@@ -88,48 +88,6 @@ class CP_SAT_REP:
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-
-#G = nx.kneser_graph(5, 2)
-#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-#G = nx.kneser_graph(13, 5)
-#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-#G = nx.kneser_graph(14, 4)
-#print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-"""
-# test on some instances
-G = nx.complete_graph(5)
-res = CP_SAT_REP.solve_coloring_REP_CP_SAT(G)
-print(res)
-
-G = nx.path_graph(10)
-print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-G = nx.cycle_graph(5)
-print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-G = nx.complete_bipartite_graph(5,5)
-print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-#G = nx.kneser_graph(13, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
-
-G = nx.kneser_graph(5, 2)
-print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-# 31.9485s with 55 not optimal solvable anymore in 60s
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(CP_SAT_REP.solve_coloring_REP_CP_SAT(G))
-
-#G = nx.kneser_graph(13, 2)
-#print(CP_SAT_ASS.solve_coloring_ASS_CP_SAT(G, 10))
-"""

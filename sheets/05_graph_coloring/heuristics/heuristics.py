@@ -36,7 +36,6 @@ class Heuristics:
     def input_order(graph: nx.Graph) -> List[int]:
         return list(graph.nodes())
 
-    """
     def random_order(graph: nx.Graph, seed: int | None = None) -> List[int]:
         nodes = list(graph.nodes())
         randseq = random.Random(seed) # reproducible randomness, seed fix random sequence
@@ -49,7 +48,6 @@ class Heuristics:
             key = lambda v: graph.degree(v),
             reverse = True
         )
-    """
 
     def multi_start_greedy(graph: nx.Graph, runs: int = 50, seed: int | None = None) -> Coloring:
 
@@ -115,19 +113,3 @@ class Heuristics:
     # count number of used colors
     def num_colors(coloring: Coloring) -> int:
         return max(coloring.values()) + 1 if coloring else 0
-    
-    """
-    # test
-    if __name__ == "__main__":
-        for seed in range(5):
-
-            G = erdosThree = nx.erdos_renyi_graph(30, 0.5, seed = 42)
-
-            print(
-                seed,
-                num_colors(greedy_coloring(G, input_order(G))),
-                num_colors(greedy_coloring(G, highest_degree_order(G))),
-                num_colors(multi_start_greedy(G, runs=100, seed=seed)),
-                num_colors(dsatur_coloring(G))
-            )
-        """

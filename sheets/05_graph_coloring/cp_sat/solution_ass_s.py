@@ -16,8 +16,8 @@ class CP_SAT_ASS_S:
 
         # create variables
         # node v colored in color c
-        
         node_coloring = {}
+
         # color used (1) or not (0)
         used_colors = {}
         for color in available_colors:
@@ -81,49 +81,6 @@ class CP_SAT_ASS_S:
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-
-"""
-# test on some instances
-G = nx.complete_graph(5)
-res = CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 5)
-print(res)
-
-G = nx.path_graph(10)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 10))
-
-G = nx.cycle_graph(5)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 5))
-
-G = nx.complete_bipartite_graph(5,5)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 10))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-#G = nx.kneser_graph(13, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
-
-G = nx.kneser_graph(5, 2)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 10))
-
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 13))
-"""
-
-"""
-G = nx.kneser_graph(14, 4)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 100))
-
-G = nx.kneser_graph(14, 5)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 100))
-
-G = nx.kneser_graph(15, 2)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 100))
-
-G = nx.kneser_graph(15, 3)
-print(CP_SAT_ASS_S.solve_coloring_ASS_S_CP_SAT(G, 100))
-"""

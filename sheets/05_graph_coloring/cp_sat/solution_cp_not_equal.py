@@ -33,7 +33,7 @@ class CP_SAT_NOT_EQUAL:
         for node in vertices:
             model.Add(node_coloring[node] <= highest_color_index)
 
-        # obejctive function --> minimizing used colors
+        # objective function --> minimizing used colors
         model.Minimize(highest_color_index)
 
         # solve the model
@@ -60,35 +60,6 @@ class CP_SAT_NOT_EQUAL:
         solution["coloring"] = coloring
         solution["LB"] = solver.BestObjectiveBound()
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-
-"""
-# test on some instances
-G = nx.complete_graph(5)
-res = CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 5)
-print(res)
-
-G = nx.path_graph(10)
-print(CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 10))
-
-G = nx.cycle_graph(5)
-print(CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 5))
-
-G = nx.complete_bipartite_graph(5,5)
-print(CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 10))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-#G = nx.kneser_graph(13, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
-
-G = nx.kneser_graph(5, 2)
-print(CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 10))
-
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(CP_SAT_NOT_EQUAL.solve_coloring_not_equal_CP_SAT(G, 13))
-"""

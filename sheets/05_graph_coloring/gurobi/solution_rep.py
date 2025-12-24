@@ -46,13 +46,13 @@ class GurobiREP:
 
         for (u, v) in edges:
             for w in vertices:
-                # w must be a valid representative for both u and v
+                # w can only be a valid representative for wether u or v
                 if (((u, w) in same_color) and ((v, w) in same_color)):
                     model.addConstr(
                         same_color[(u, w)] + same_color[(v, w)] <= same_color[(w, w)]
                     )
 
-        # obejctive function --> minimizing used colors, this is equal to minimize nodes that are representatives of themselves
+        # objective function --> minimizing used colors, this is equal to minimize nodes that are representatives of themselves
         model.setObjective(gp.quicksum(same_color[(v, v)] for v in vertices), GRB.MINIMIZE)
 
         # solve the model
@@ -64,15 +64,10 @@ class GurobiREP:
             "objective": None,
             "coloring": None,
             "LB": None,
-            #"gap": None,
             "runtime": model.Runtime
         }
 
         if model.SolCount > 0:
-
-            solution["objective"] = model.ObjVal
-            solution["LB"] = model.ObjBound
-            #solution["gap"] = model.MIPGap
 
             coloring = {}
 
@@ -93,9 +88,9 @@ class GurobiREP:
                         break
 
             solution["objective"] = model.ObjVal
+            solution["LB"] = model.ObjBound
             solution["coloring"] = coloring
 
-            print(solution["objective"], "\n")
             print(solution)
 
             return solution
@@ -105,63 +100,7 @@ class GurobiREP:
 
             solution["objective"] = minimal_heuristic
             solution["best_bound"] = model.ObjBound
-            solution["gap"] = None
 
-            print(solution["objective"], "\n")
             print(solution)
 
             return solution
-
-"""
-G = nx.complete_graph(5)
-res = GurobiREP.solve_coloring_REP_gurobi(G, 7)
-print(res)
-
-G = nx.path_graph(10)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 10))
-
-G = nx.cycle_graph(5)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 5))
-
-G = nx.complete_bipartite_graph(5,5)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 5))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiREP.solve_coloring_REP_gurobi(G, 8))
-G = nx.kneser_graph(13, 4)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
-
-G = nx.kneser_graph(5, 2)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 5))
-
-# need 90seconds
-#G = nx.kneser_graph(13, 2)
-#print(GurobiREP.solve_coloring_REP_gurobi(G))
-
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 20))
-
-G = nx.erdos_renyi_graph(30, 1, seed = 1)
-print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
-
-G = nx.barabasi_albert_graph(100, 10, seed = 42)
-print(GurobiREP.solve_coloring_REP_gurobi(G, None, 60))
-
-G = nx.kneser_graph(15, 4)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 10, 60))
-"""
-
-"""
-G = nx.kneser_graph(14, 4)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
-
-G = nx.kneser_graph(14, 5)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
-
-G = nx.kneser_graph(15, 2)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
-
-G = nx.kneser_graph(15, 3)
-print(GurobiREP.solve_coloring_REP_gurobi(G, 100))
-"""

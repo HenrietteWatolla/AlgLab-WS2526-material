@@ -13,28 +13,13 @@ class GurobiASS:
 
         model.Params.TimeLimit = time_limit
 
-        """
-        self.heuristics = {
-            "greedy": lambda G: Heuristics.greedy_coloring(G, Heuristics.input_order(G)),
-            "multi_greedy": lambda G: Heuristics.multi_start_greedy(G, runs = 50, seed = 42),
-            "dsatur": Heuristics.dsatur_coloring
-        }
-
-        # get instances --> one solving model per instance
-        for graph in Instances.generate_test_instances():
-            
-
-            # find best upper bound
-            self.best_upper_bound = min(Heuristics.num_colors(heuristic) for heuristic in self.heuristics.items())
-            print("INIT upper bound ", self.best_upper_bound)
-        """
-
         # create variables
         # node v colored in color c
-        
         node_coloring = {}
+
         # color used (1) or not (0)
         used_colors = {}
+
         for color in available_colors:
             used_colors[color] = model.addVar(vtype = GRB.BINARY, name = f"color_{color}")
             for node in vertices:
@@ -55,7 +40,7 @@ class GurobiASS:
             for color in available_colors:
                 model.addConstr(node_coloring[(v, color)] <= used_colors[color])
 
-        # obejctive function --> minimizing used colors
+        # objective function --> minimizing used colors
         model.setObjective(gp.quicksum(used_colors[color] for color in available_colors), GRB.MINIMIZE)
 
         # solve the model
@@ -79,41 +64,12 @@ class GurobiASS:
                     if node_coloring[(node, color)].X > 0.5:
                         coloring[node] = color
                         break
-        
-        print(used_colors[color] for color in available_colors)
+
         solution["objective"] = model.ObjVal
         solution["coloring"] = coloring
         solution["LB"] = model.ObjBound
         solution["gap"] = model.MIPGap
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-
-"""
-G = nx.complete_graph(5)
-res = GurobiASS.solve_coloring_ASS_gurobi(G, 5)
-print(res)
-
-G = nx.path_graph(10)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
-
-G = nx.cycle_graph(5)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 5))
-
-G = nx.complete_bipartite_graph(5,5)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
-
-# too difficult
-#G = nx.kneser_graph(14, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-#G = nx.kneser_graph(13, 4)
-#print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
-
-G = nx.kneser_graph(5, 2)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 10))
-
-G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-print(GurobiASS.solve_coloring_ASS_gurobi(G, 13))
-"""

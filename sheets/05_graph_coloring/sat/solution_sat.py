@@ -16,7 +16,6 @@ class SAT:
 
         # create variables
         # mapping of vertice-color pairs with variable indices
-
         node_coloring = {}
         var_counter = 1  # start variable IDs at 1
 
@@ -53,7 +52,6 @@ class SAT:
 
         k = minimal_heuristic
 
-        # wrong runtime for instances with timeout
         solution = {"objective": None, "coloring": None, "runtime": 0}
 
         # find the smallest number of colors iteratively,
@@ -115,40 +113,6 @@ class SAT:
                 # prooving infeasibility of the current number of colors k is very difficult + needs a lot of time
                 break
 
-        print(solution["objective"], "\n")
         print(solution)
 
         return solution
-
-"""
-if __name__ == "__main__":
-    # test on some instances
-    G = nx.complete_graph(5)
-    res = SAT.solve_coloring_SAT(G, 5)
-
-    G = nx.path_graph(10)
-    print(SAT.solve_coloring_SAT(G, 10))
-
-    G = nx.cycle_graph(5)
-    print(SAT.solve_coloring_SAT(G, 5))
-
-    G = nx.complete_bipartite_graph(5,5)
-    print(SAT.solve_coloring_SAT(G, 10))
-
-    # too difficult
-    #G = nx.kneser_graph(14, 4)
-    #print(GurobiASS.solve_coloring_ASS_gurobi(G, 8))
-    #G = nx.kneser_graph(13, 4)
-    #print(GurobiASS.solve_coloring_ASS_gurobi(G, 7))
-
-    G = nx.kneser_graph(5, 2)
-    print(SAT.solve_coloring_SAT(G, 10))
-
-    G = nx.erdos_renyi_graph(40, 0.5, seed = 42)
-    print(SAT.solve_coloring_SAT(G, 11))
-
-    # timeout --> we know k + 1 is a feasible solution
-    # but no information about current iteration --> k can also be feasible
-    G = nx.erdos_renyi_graph(54, 0.5, seed = 42)
-    print(SAT.solve_coloring_SAT(G, 11))
-"""

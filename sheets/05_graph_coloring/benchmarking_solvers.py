@@ -18,7 +18,6 @@ from preprocessing import DegreeBasedPreprocessor
 
 import os
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -118,7 +117,7 @@ class Benchmarking_Solvers:
                 if (instance_name, solver_name) in completed:
                     continue
 
-                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ", instance_counter, solver_name)
+                print("CURRENT SOLVED INSTANCE", instance_counter, solver_name)
 
                 result = solver_fn(G, ub)
 
@@ -152,7 +151,7 @@ class Benchmarking_Solvers:
 
         Benchmarking_Solvers.df_results = pd.read_csv(Benchmarking_Solvers.output_file)
         print("DONE. Rows:", len(Benchmarking_Solvers.df_results))
-        print("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ", Benchmarking_Solvers.df_results.head(36))
+        print("FINISH SOLVING PROCESS", Benchmarking_Solvers.df_results.head(36))
         
 
     @classmethod
@@ -174,7 +173,7 @@ class Benchmarking_Solvers:
                 title = (f"Performance Profile: best solution found for {class_name} with preprocessing")
             )
 
-            plt.savefig(f"benchmarking_solvers_best_solution_found_{class_name}_pre_relative.png", dpi=300)
+            plt.savefig(f"benchmarking_solvers_best_solution_found_{class_name}_pre_relative.png", dpi = 300)
             plt.close()
 
     @classmethod
@@ -194,7 +193,7 @@ class Benchmarking_Solvers:
                 title = (f"Performance Profile: best solution found for all instances with preprocessing")
             )
 
-        plt.savefig(f"benchmarking_solvers_best_solution_found_all_instances_pre_relative.png", dpi=300)
+        plt.savefig(f"benchmarking_solvers_best_solution_found_all_instances_pre_relative.png", dpi = 300)
         plt.close()
 
     @classmethod
@@ -216,7 +215,7 @@ class Benchmarking_Solvers:
                 title = (f"Performance Profile: lower bound for {class_name} with preprocessing")
             )
 
-            plt.savefig(f"benchmarking_solvers_lower_bound_{class_name}_pre_relative.png", dpi=300)
+            plt.savefig(f"benchmarking_solvers_lower_bound_{class_name}_pre_relative.png", dpi = 300)
             plt.close()
 
     @classmethod

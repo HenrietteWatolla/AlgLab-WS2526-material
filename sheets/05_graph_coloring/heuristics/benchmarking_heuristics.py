@@ -3,7 +3,6 @@ from instances.instances import Instances
 from plot_generation import Plots
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -19,7 +18,8 @@ class Benchmarking_Heuristics:
             for instance_name, G in cls.all_instances:
                 if instance_name not in names:
                     continue  # skip instances not in this class
-                for h_name, f in cls.heuristics.items():
+
+                for h_name, f in heuristics.items():
                     coloring = f(G)
                     data_rows.append({
                         "instance": instance_name,
@@ -29,7 +29,7 @@ class Benchmarking_Heuristics:
 
             df_class = pd.DataFrame(data_rows)
 
-            print(df_class.head(20))
+            print(df_class.head(40))
 
             Plots.plot_performance_profile(
                 data = df_class,
@@ -37,12 +37,12 @@ class Benchmarking_Heuristics:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: {class_name}")
             )
 
-            plt.savefig(f"benchmarking_heuristics_{class_name}.png", dpi=300)
+            plt.savefig(f"benchmarking_heuristics_{class_name}_relative.png", dpi = 300)
             plt.close()
 
     @classmethod
@@ -50,7 +50,7 @@ class Benchmarking_Heuristics:
         data_rows = []
         for i, (instance_name, G) in enumerate(Instances.generate_test_instances()):
             instance_id = instance_name
-            for heuristic_name, f in cls.heuristics.items():
+            for heuristic_name, f in heuristics.items():
                 coloring = f(G)
                 data_rows.append({
                     "instance": instance_id,
@@ -68,12 +68,12 @@ class Benchmarking_Heuristics:
                 strategy_column = "strategy",
                 metric_column = "metric",
                 direction = "min",          # smaller number of colors is better upper bound
-                comparison = "absolute",    # ratio to best-known solution
+                comparison = "relative",    # ratio to best-known solution
                 highlight_best = True,      # bold dominant heuristic
                 title = (f"Performance Profile: all instances")
             )
 
-        plt.savefig(f"benchmarking_heuristics_all_instances.png", dpi=300)
+        plt.savefig(f"benchmarking_heuristics_all_instances_relative.png", dpi = 300)
         plt.close()
 
 # generate the plots
